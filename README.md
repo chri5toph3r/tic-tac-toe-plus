@@ -1,5 +1,7 @@
 # tic-tac-toe-plus
 
+Working version in stable-version branch.
+
 The board is divided into 9 sectors, each sector is divided into 9 tiles which gives 27 tiles in total.
 You cannot start in the middle sector.
 
