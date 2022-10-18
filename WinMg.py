@@ -53,7 +53,6 @@ class Pen:
         self.screen = pygame.display.set_mode((win_size, win_size))
         pygame.display.set_caption(win_title)
         pygame.display.set_icon(icon)
-        self.screen.fill(bg_color)
         pygame.display.flip()
 
     def draw_lines(self, ln_quantity, ln_width, ln_color):
@@ -112,6 +111,7 @@ class Pen:
     #    self.outline_rect.move(x_vector, y_vector)
 
     def draw_default_board(self):
+        self.screen.fill(bg_color)
         # rysowanie siatki
         self.draw_lines(line_quantity, line_width, line_color)
         self.draw_rects(line_quantity, self.tiles_rect, rect_diff)
