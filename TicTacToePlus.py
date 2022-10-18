@@ -10,7 +10,7 @@ class Sector:
     def __init__(self, sector_id):
         self.id = sector_id
         Sector.symbols_written[self.id] = {}
-        print(f'{self.id} dic: {Sector.symbols_written}')
+        # print(f'{self.id} dic: {Sector.symbols_written}')
         self.turn = 0
         # last potrzebny do skróconego sprawdzania, czy ktoś wygrał
         self.last_col = 0
@@ -18,8 +18,8 @@ class Sector:
 
     def write_board(self):
         print(self.id)
-        for col in range(3):
-            for row in range(3):
+        for row in range(3):
+            for col in range(3):
                 if (col, row) in Sector.symbols_written[self.id]:
                     symbol = Sector.symbols_written[self.id][(col, row)]
                 else:

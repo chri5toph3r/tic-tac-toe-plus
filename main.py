@@ -22,6 +22,7 @@ def main():
     return_status = 0
 
     positions = window.pos_system_translate(window.pos_translate(pygame.mouse.get_pos()))
+    print(positions)
 
     if positions is None:
         return return_status

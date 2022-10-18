@@ -1,8 +1,11 @@
 import pygame
+import os
 
 pygame.init()
 
 win_title = 'TicTacToe+'
+sourceFileDir = os.path.dirname(os.path.abspath(__file__))
+icon = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/icon.png')
 win_size = 900
 bg_color = 'white'  # '(106, 42, 245)
 
@@ -49,6 +52,7 @@ class Pen:
 
         self.screen = pygame.display.set_mode((win_size, win_size))
         pygame.display.set_caption(win_title)
+        pygame.display.set_icon(icon)
         self.screen.fill(bg_color)
         pygame.display.flip()
 
@@ -85,7 +89,7 @@ class Pen:
         if symbol == 'o':
             pygame.draw.ellipse(self.screen, circle_color, target, symbol_width)
         elif symbol == 'x':
-            pygame.Rect.inflate_ip(target, (-symbol_width, -symbol_width))
+            # pygame.Rect.inflate_ip(target, (-symbol_width, -symbol_width))
             pygame.draw.rect(self.screen, square_color, target, symbol_width)
 
         # self.move_outline(colrow)
@@ -122,17 +126,19 @@ class Pen:
     def pos_system_translate(pos1, pos2=None):
 
         if pos1 is None:
+            # print(f"pos1 is None -> pos1 ({pos1}) returned")
             return pos1
 
         # 3x3 x 3x3 -> 9x9
         if pos2 is not None:
             sector_col, sector_row = pos1
             tile_col, tile_row = pos2
-            return sector_col*3 + tile_col, sector_row*3 + sector_row
+            # print(f"pos1 = {pos1} & pos2 = {pos2}; return = {sector_col*3 + tile_col, sector_row*3 + sector_row}")
+            return sector_col*3 + tile_col, sector_row*3 + tile_row
 
         # 9x9 -> 3x3 x 3x3
         board_col, board_row = pos1
-        print(f'pos_translate pos1: {pos1}; bc, br: {board_col, board_row}')
+        # print(f'pos_translate pos1: {pos1}; bc, br: {board_col, board_row}')
         return board_col // 3, board_row // 3, board_col % 3, board_row % 3
 
     def pos_translate(self, position):
@@ -150,6 +156,10 @@ class Pen:
         pygame.display.flip()
 
     def refresh(self, written_symbols_dic, msg=None, draw_board=None):
+
+        for sector in written_symbols_dic:
+            print(f"{sector}: {written_symbols_dic[sector]}")
+
         # rysowanie tła
         if draw_board is None:
             self.draw_default_board()
@@ -173,7 +183,8 @@ class Pen:
                     # jeśli sektor niewygrany to rysuj małe symbole
                     else:
                         for tile in written_symbols_dic[sec_name]:
-                            colrow = self.pos_system_translate(sec_name, (col, row))
+                            colrow = self.pos_system_translate(sec_name, tile)
+                            # print(f"sec_name: {sec_name}; tile: {tile}\n")
                             counting += 1
                             self.draw_symbol(written_symbols_dic[sec_name][tile], colrow)
 
@@ -201,5 +212,3 @@ if __name__ == '__main__':
                     symbol = 'o'
                 else:
                     symbol = 'x'
-
-            exec(input(':'))
