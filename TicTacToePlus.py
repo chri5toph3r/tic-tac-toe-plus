@@ -97,10 +97,10 @@ class Board(Sector):
         super().__init__((3, 3))
         # next_sector -> sektor wskazany przez ostatnio wybrane pole
         # potrzebny do sprawdzenia zgodności aktualnie wybranego sektora
-        # TODO: sprawdzanie nie chce działać, sprawdzić co jest 5
         self.next_sector = 4, 4  # 4, 4 -> freetake
 
     def check_sector(self, sector_col, sector_row, next_sector_to):
+        print(f"next sector while checking: {self.next_sector}")
         if self.next_sector != (4, 4):
             # jeśli nie freetake
             # wybrany sektor i next_sector muszą być te same
@@ -125,10 +125,13 @@ class Board(Sector):
         Sector.turn_symbol = Sector.symbols[Sector.board_turn % 2]
         print(f'board turn: {Sector.board_turn}')
 
-        if self.id in Sector.symbols_written[3, 3]:
+        print(f"id: {self.id}; board symbols: {Sector.symbols_written[3, 3]}")
+
+        if (tile_col, tile_row) in Sector.symbols_written[3, 3]:
             self.next_sector = 4, 4
         else:
             self.next_sector = tile_col, tile_row
+        print(f"next sector after drawing: {self.next_sector}")
         return
 
 
