@@ -31,6 +31,11 @@ info_aa = True
 info_color = (0, 0, 0)
 info_bg = (255, 255, 255)
 
+watermark_font = pygame.font.Font('freesansbold.ttf', 10)
+watermark_txt = "Krzysztof Kulak"
+watermark_color = (220, 220, 220)
+watermark_coords = (10, 0)
+
 
 class Pen:
 
@@ -94,21 +99,11 @@ class Pen:
         pygame.display.flip()
         return
 
-    #def draw_outline(self, x, y):
-    #    self.outline_rect = pygame.Rect(x, y, tile_size, tile_size)
-    #    pygame.draw.rect(self.screen, outline_color, self.outline_rect, outline_width)
-    #    self.cur_outline_x, self.cur_outline_y = x, y
-    #    return
-
-    #def move_outline(self, colrow):
-    #    print('self.tiles_pos', self.tiles_pos[colrow])
-
-    #    xk, yk = self.tiles_pos[colrow]
-    #    x_vector, y_vector = int(xk - self.cur_outline_x), int(yk - self.cur_outline_y)
-    #    self.outline_rect.move(x_vector, y_vector)
-
     def draw_default_board(self, sector=None):
         self.screen.fill(bg_color)
+
+        watermark = watermark_font.render(watermark_txt, info_aa, watermark_color)
+        self.screen.blit(watermark, watermark_coords)
 
         # draw shadow behind active sector
         if sector is not None:
