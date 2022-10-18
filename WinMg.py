@@ -163,7 +163,6 @@ class Pen:
         # rysowanie tła
         if draw_board is None:
             self.draw_default_board()
-            print('board drawn')
         else:
             # customowe rysownie
             draw_board()

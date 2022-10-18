@@ -59,18 +59,19 @@ class Sector:
 
         # sprawdź tylko dla rzędu i kolumny, w których został ostatnio postawiony znak
         try:
+            print(f"last row: {self.last_row}")
             row_win = \
-                Sector.symbols_written[self.id][(self.last_row, 0)] \
-                == Sector.symbols_written[self.id][(self.last_row, 1)] \
-                == Sector.symbols_written[self.id][(self.last_row, 2)]
+                Sector.symbols_written[self.id][(0, self.last_row)] \
+                == Sector.symbols_written[self.id][(1, self.last_row)] \
+                == Sector.symbols_written[self.id][(2, self.last_row)]
             if row_win and nie_remis:
                 status = 1
         except KeyError:
             try:
                 col_win = \
-                    Sector.symbols_written[self.id][(0, self.last_col)] \
-                    == Sector.symbols_written[self.id][(1, self.last_col)] \
-                    == Sector.symbols_written[self.id][(2, self.last_col)]
+                    Sector.symbols_written[self.id][(self.last_col, 0)] \
+                    == Sector.symbols_written[self.id][(self.last_col, 1)] \
+                    == Sector.symbols_written[self.id][(self.last_col, 2)]
                 if col_win and nie_remis:
                     status = 1
             except KeyError:
@@ -80,13 +81,15 @@ class Sector:
                         if Sector.symbols_written[self.id][(0, 0)] == Sector.symbols_written[self.id][(1, 1)] \
                                 == Sector.symbols_written[self.id][(2, 2)]:
                             status = 1
+                except KeyError:
+                    try:
                         if Sector.symbols_written[self.id][(0, 2)] == Sector.symbols_written[self.id][(1, 1)] \
                                 == Sector.symbols_written[self.id][(2, 0)]:
                             status = 1
-                except KeyError:
-                    # remis dla pełnej planszy
-                    if self.turn == 9:
-                        status = -1
+                    except KeyError:
+                        # remis dla pełnej planszy
+                        if self.turn == 9:
+                            status = -1
 
         # zwróć status: 0 = nikt nie wygrał; 1 = ktoś wygrał; -1 = remis
         return status
@@ -100,7 +103,7 @@ class Board(Sector):
         self.next_sector = 4, 4  # 4, 4 -> freetake
 
     def check_sector(self, sector_col, sector_row, next_sector_to):
-        print(f"next sector while checking: {self.next_sector}")
+        # print(f"next sector while checking: {self.next_sector}")
         if self.next_sector != (4, 4):
             # jeśli nie freetake
             # wybrany sektor i next_sector muszą być te same
@@ -123,15 +126,15 @@ class Board(Sector):
     def next_turn(self, tile_col, tile_row):
         Sector.board_turn += 1
         Sector.turn_symbol = Sector.symbols[Sector.board_turn % 2]
-        print(f'board turn: {Sector.board_turn}')
+        # print(f'board turn: {Sector.board_turn}')
 
-        print(f"id: {self.id}; board symbols: {Sector.symbols_written[3, 3]}")
+        # print(f"id: {self.id}; board symbols: {Sector.symbols_written[3, 3]}")
 
         if (tile_col, tile_row) in Sector.symbols_written[3, 3]:
             self.next_sector = 4, 4
         else:
             self.next_sector = tile_col, tile_row
-        print(f"next sector after drawing: {self.next_sector}")
+        # print(f"next sector after drawing: {self.next_sector}")
         return
 
 

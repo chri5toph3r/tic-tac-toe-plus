@@ -48,6 +48,7 @@ def main():
 
     # czy ktoś wygrał sektor?
     sector_status = sectors_obj[sector_col, sector_row].check_winner()  # 3 możliwe wartości zwrotne
+    print(f"sector status: {sector_status}")
     if sector_status:
         # sectors_obj[sector_col, sector_row].write_board()
         # jeśli tak, narysuj symbol, lub wpisz 'draw'
