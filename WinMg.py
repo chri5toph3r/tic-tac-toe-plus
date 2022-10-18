@@ -26,15 +26,30 @@ rect_diff = symbol_width
 tile_size = win_size / line_quantity
 sector_size = win_size / big_line_quantity
 
-info_font = pygame.font.Font('freesansbold.ttf', 40)
+info_font_size = 100
+info_font = pygame.font.Font('freesansbold.ttf', info_font_size)
 info_aa = True
 info_color = (0, 0, 0)
 info_bg = (255, 255, 255)
+info_coords = (win_size/2-(7/5*info_font_size), win_size/2-(1/2*info_font_size-1))
 
 watermark_font = pygame.font.Font('freesansbold.ttf', 10)
 watermark_txt = "Krzysztof Kulak"
 watermark_color = (220, 220, 220)
 watermark_coords = (10, 0)
+
+cur_img_width = 30
+cur_img_r = cur_img_width/2
+cur_img_ln_width = 5
+
+# create ellipse cursor
+surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
+pygame.draw.circle(surf, 'red', (cur_img_r, cur_img_r), cur_img_r, cur_img_ln_width)
+circle = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
+
+surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
+pygame.draw.rect(surf, 'blue', (0, 0, cur_img_width, cur_img_width), cur_img_ln_width)
+square = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
 
 
 class Pen:
@@ -51,6 +66,11 @@ class Pen:
 
         self.col = None
         self.row = None
+
+        # cursors list
+        self.cursors = [circle, square]
+        self.cursor_index = 0
+        pygame.mouse.set_cursor(self.cursors[self.cursor_index])
 
         self.screen = pygame.display.set_mode((win_size, win_size))
         pygame.display.set_caption(win_title)
@@ -149,10 +169,10 @@ class Pen:
     def fin_msg(self, msg):
 
         info = info_font.render(msg, info_aa, info_color, info_bg)
-        self.screen.blit(info, (250, 280))
+        self.screen.blit(info, info_coords)
         pygame.display.flip()
 
-    def refresh(self, written_symbols_dic, next_sector, msg=None, draw_board=None):
+    def refresh(self, written_symbols_dic, next_sector, msg=None, draw_board=None, change_cur=False):
 
         for sector in written_symbols_dic:
             print(f"{sector}: {written_symbols_dic[sector]}")
@@ -185,6 +205,11 @@ class Pen:
                             # print(f"sec_name: {sec_name}; tile: {tile}\n")
                             counting += 1
                             self.draw_symbol(written_symbols_dic[sec_name][tile], colrow)
+
+        if change_cur:
+            self.cursor_index += 1
+            self.cursor_index %= len(self.cursors)
+            pygame.mouse.set_cursor(self.cursors[self.cursor_index])
 
         # print(f'sec_name: {sec_name}|(col, row): {(col, row)}')
         # print(f'colrow: {colrow}')
