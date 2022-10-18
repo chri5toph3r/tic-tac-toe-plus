@@ -58,6 +58,7 @@ def main():
             #window.draw_symbol(Sector.turn_symbol, (sector_col, sector_row))
         else:
             board.write_symbol(sector_col, sector_row, 'draw')
+        window.refresh(Sector.symbols_written, (tile_col, tile_row))
 
         # czy ktoś wygrał grę?
         return_status = board.check_winner()
