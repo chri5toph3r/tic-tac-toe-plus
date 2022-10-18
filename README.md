@@ -2,7 +2,7 @@
 
 Working version in stable-version branch.
 
-The board is divided into 9 sectors, each sector is divided into 9 tiles which gives 27 tiles in total.
+The board is divided into 9 sectors, each sector is divided into 9 tiles which gives 81 tiles in total.
 You cannot start in the middle sector.
 
 The game is based on traditional Tic Tac Toe, but it is, you could say, to the power of two.
