@@ -1,10 +1,8 @@
 import pygame
-import os
 
 pygame.init()
 
 win_title = 'TicTacToe+'
-sourceFileDir = os.path.dirname(os.path.abspath(__file__))
 icon = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/icon.png')
 win_size = 900
 bg_color = 'white'  # '(106, 42, 245)
@@ -21,8 +19,7 @@ circle_color = 'red'
 square_color = 'blue'
 symbol_width = int(win_size / 100)
 
-outline_color = (206, 252, 3)
-outline_width = int(symbol_width/2)
+shadow_color = (230, 230, 230)
 
 rect_diff = symbol_width
 
@@ -110,8 +107,13 @@ class Pen:
     #    x_vector, y_vector = int(xk - self.cur_outline_x), int(yk - self.cur_outline_y)
     #    self.outline_rect.move(x_vector, y_vector)
 
-    def draw_default_board(self):
+    def draw_default_board(self, sector=None):
         self.screen.fill(bg_color)
+
+        # draw shadow behind active sector
+        if sector is not None:
+            pygame.Surface.fill(self.screen, shadow_color, self.sectors_rect[sector])
+
         # rysowanie siatki
         self.draw_lines(line_quantity, line_width, line_color)
         self.draw_rects(line_quantity, self.tiles_rect, rect_diff)
@@ -155,14 +157,16 @@ class Pen:
         self.screen.blit(info, (250, 280))
         pygame.display.flip()
 
-    def refresh(self, written_symbols_dic, msg=None, draw_board=None):
+    def refresh(self, written_symbols_dic, next_sector, msg=None, draw_board=None):
 
         for sector in written_symbols_dic:
             print(f"{sector}: {written_symbols_dic[sector]}")
 
         # rysowanie tła
         if draw_board is None:
-            self.draw_default_board()
+            if next_sector == (4, 4):
+                next_sector = None
+            self.draw_default_board(next_sector)
         else:
             # customowe rysownie
             draw_board()

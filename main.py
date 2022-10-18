@@ -1,3 +1,4 @@
+import TicTacToePlus
 from TicTacToePlus import *
 import WinMg
 import pygame
@@ -68,7 +69,7 @@ def main():
     else:
         print('3. no one won the sector')
 
-    window.refresh(Sector.symbols_written)
+    window.refresh(Sector.symbols_written, (tile_col, tile_row))
     board.next_turn(tile_col, tile_row)
     return return_status
 
