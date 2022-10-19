@@ -3,9 +3,9 @@ import pygame
 pygame.init()
 
 win_title = 'TicTacToe+'
-icon = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/icon2.png')
+icon = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/icon2.png')
 win_size = 900
-bg_color = (240, 240, 240)  # 'white'  # (106, 42, 245)
+bg_color = (230, 230, 230)  # 'white'  # (106, 42, 245)
 
 line_quantity = 9
 line_width = 2
@@ -43,13 +43,19 @@ cur_img_r = cur_img_width/2
 cur_img_ln_width = 5
 
 # create ellipse cursor
-surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
-pygame.draw.circle(surf, 'red', (cur_img_r, cur_img_r), cur_img_r, cur_img_ln_width)
-circle = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
+# surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
+# pygame.draw.circle(surf, 'red', (cur_img_r, cur_img_r), cur_img_r, cur_img_ln_width)
+# circle = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
 
-surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
-pygame.draw.rect(surf, 'blue', (0, 0, cur_img_width, cur_img_width), cur_img_ln_width)
-square = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
+circle_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor2.png')
+circle = pygame.cursors.Cursor((0, 127), circle_img)
+
+# surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
+# pygame.draw.rect(surf, 'blue', (0, 0, cur_img_width, cur_img_width), cur_img_ln_width)
+# square = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
+
+square_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor1.png')
+square = pygame.cursors.Cursor((0, 127), square_img)
 
 
 class Pen:
