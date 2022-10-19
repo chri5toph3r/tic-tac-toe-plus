@@ -38,22 +38,25 @@ watermark_txt = "Krzysztof Kulak"
 watermark_color = (220, 220, 220)
 watermark_coords = (10, 0)
 
-cur_img_width = 30
-cur_img_r = cur_img_width/2
-cur_img_ln_width = 5
+# cur_img_width = 30
+# cur_img_r = cur_img_width/2
+# cur_img_ln_width = 5
 
 # create ellipse cursor
 # surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
 # pygame.draw.circle(surf, 'red', (cur_img_r, cur_img_r), cur_img_r, cur_img_ln_width)
 # circle = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
 
+# create red crayon cursor
 circle_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor2.png')
 circle = pygame.cursors.Cursor((0, 127), circle_img)
 
+# create square cursor
 # surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
 # pygame.draw.rect(surf, 'blue', (0, 0, cur_img_width, cur_img_width), cur_img_ln_width)
 # square = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
 
+# create blue crayon cursor
 square_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor1.png')
 square = pygame.cursors.Cursor((0, 127), square_img)
 
@@ -62,13 +65,8 @@ class Pen:
 
     def __init__(self):
 
-        self.tiles_rect = {}
-        self.tiles_pos = {}
-        self.sectors_rect = {}
-
-        self.outline_rect = None
-        self.cur_outline_x, self.cur_outline_y = -100, -100
-        # self.draw_outline(self.cur_outline_x, self.cur_outline_y)
+        self.tiles_rects = {}
+        self.sectors_rects = {}
 
         self.col = None
         self.row = None
@@ -98,20 +96,17 @@ class Pen:
         # tworzenie siatki pól na znaki
         for col in range(rect_quantity):
             for row in range(rect_quantity):
-                name = col, row
                 left = col * tile_len + rect_len_diff
                 top = row * tile_len + rect_len_diff
                 side_ln = tile_len - (2 * rect_len_diff)
-                target[name] = pygame.Rect(left, top, side_ln, side_ln)
-                if target == self.tiles_rect:
-                    self.tiles_pos[name] = left, top
+                target[(col, row)] = pygame.Rect(left, top, side_ln, side_ln)
 
     # uses 9x9 tiles grid instead of 3x3x3x3
     def draw_symbol(self, symbol, colrow, target=None):
         if target is None:
-            target = self.tiles_rect[colrow]
+            target = self.tiles_rects[colrow]
         else:
-            target = self.sectors_rect[colrow]
+            target = self.sectors_rects[colrow]
 
         if symbol == 'o':
             pygame.draw.ellipse(self.screen, circle_color, target, symbol_width)
@@ -134,18 +129,18 @@ class Pen:
         # draw shadow behind active sector
         if sector is not None:
             print(f"sector: {sector}")
-            pygame.Surface.fill(self.screen, shadow_color, self.sectors_rect[sector])
+            pygame.Surface.fill(self.screen, shadow_color, self.sectors_rects[sector])
 
         # rysowanie siatki
         self.draw_lines(line_quantity, line_width, line_color)
-        self.draw_rects(line_quantity, self.tiles_rect, rect_diff)
+        self.draw_rects(line_quantity, self.tiles_rects, rect_diff)
         # print(self.tiles_pos)
         self.draw_lines(big_line_quantity, big_line_width, big_line_color)
-        self.draw_rects(big_line_quantity, self.sectors_rect, rect_diff)
+        self.draw_rects(big_line_quantity, self.sectors_rects, rect_diff)
         pygame.display.flip()
         return
 
-    # TODO: 9x9 <-> 3x3x3x3 translate function
+    # 9x9 <-> 3x3x3x3 translate function
     @staticmethod
     def pos_system_translate(pos1, pos2=None):
 
