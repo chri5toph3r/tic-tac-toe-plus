@@ -23,7 +23,7 @@ class Sector:
                 if (col, row) in Sector.symbols_written[self.id]:
                     symbol = Sector.symbols_written[self.id][(col, row)]
                 else:
-                    symbol = '-'
+                    symbol = Sector.blank
                 print(symbol, end=' ')
             print()
         return True
@@ -115,24 +115,26 @@ class Board(Sector):
 
     def check_sector(self, sector_col, sector_row, next_sector_to):
         # print(f"next sector while checking: {self.next_sector}")
+        status = True
         if self.next_sector != (4, 4):
             # jeśli nie freetake
             # wybrany sektor i next_sector muszą być te same
-            if self.next_sector != (sector_col, sector_row):
-                print('Incorrect sector has been chosen!')
-                return False
+            # print('Incorrect sector has been chosen!')
+            status = self.next_sector == (sector_col, sector_row)
         else:
             # jeśli freetake
             # mid-block
-            if Sector.board_turn == 0 and (sector_col, sector_row) == (1, 1):
-                print('mid-block!')
-                return False
+            # print('mid-block!')
+            if Sector.board_turn == 0:
+                status = (sector_col, sector_row) != (1, 1)
             # skończony sektor
-            if self.id in Sector.symbols_written[(3, 3)]:
-                print('Sector is already finished!')
-                return False
-        Sector.next_sector = next_sector_to
-        return True
+            # print('Sector is already finished!')
+            else:
+                status = self.id not in Sector.symbols_written[(3, 3)]
+
+        if status:
+            Sector.next_sector = next_sector_to
+        return status
 
     def next_turn(self, tile_col, tile_row):
         Sector.board_turn += 1

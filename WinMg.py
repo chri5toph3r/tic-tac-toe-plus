@@ -3,9 +3,9 @@ import pygame
 pygame.init()
 
 win_title = 'TicTacToe+'
-icon = pygame.image.load('D:\Krzysztof\python\TicTacToe+\icon.png')
+icon = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/icon2.png')
 win_size = 900
-bg_color = 'white'  # '(106, 42, 245)
+bg_color = (240, 240, 240)  # 'white'  # (106, 42, 245)
 
 line_quantity = 9
 line_width = 2
@@ -19,7 +19,7 @@ circle_color = 'red'
 square_color = 'blue'
 symbol_width = int(win_size / 100)
 
-shadow_color = (230, 230, 230)
+shadow_color = 'white'  # '(230, 230, 230)
 
 rect_diff = symbol_width
 
@@ -59,6 +59,10 @@ class Pen:
         self.tiles_rect = {}
         self.tiles_pos = {}
         self.sectors_rect = {}
+
+        self.outline_rect = None
+        self.cur_outline_x, self.cur_outline_y = -100, -100
+        # self.draw_outline(self.cur_outline_x, self.cur_outline_y)
 
         self.col = None
         self.row = None

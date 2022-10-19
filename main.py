@@ -1,4 +1,3 @@
-import TicTacToePlus
 from TicTacToePlus import *
 import WinMg
 import pygame
