@@ -148,7 +148,7 @@ class Board(Sector):
         else:
             self.next_sector = tile_col, tile_row
         # print(f"next sector after drawing: {self.next_sector}")
-        return
+        return self.next_sector
 
 
 if __name__ == '__main__':

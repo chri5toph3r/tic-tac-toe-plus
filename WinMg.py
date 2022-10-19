@@ -127,6 +127,7 @@ class Pen:
 
         # draw shadow behind active sector
         if sector is not None:
+            print(f"sector: {sector}")
             pygame.Surface.fill(self.screen, shadow_color, self.sectors_rect[sector])
 
         # rysowanie siatki
@@ -181,6 +182,7 @@ class Pen:
         if draw_board is None:
             if next_sector == (4, 4):
                 next_sector = None
+            print(f"next sector: {next_sector}")
             self.draw_default_board(next_sector)
         else:
             # customowe rysownie
