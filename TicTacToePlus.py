@@ -17,21 +17,21 @@ class Sector:
         self.last_row = 0
 
     def write_board(self):
-        print(self.id)
+        # print(self.id)
         for row in range(3):
             for col in range(3):
                 if (col, row) in Sector.symbols_written[self.id]:
                     symbol = Sector.symbols_written[self.id][(col, row)]
                 else:
                     symbol = Sector.blank
-                print(symbol, end=' ')
-            print()
+                # print(symbol, end=' ')
+            # print()
         return True
 
     def write_symbol(self, col, row, symbol=None):
         if symbol is None:
             symbol = Sector.turn_symbol
-            print(f'\n{self} symbol {symbol}')
+            # print(f'\n{self} symbol {symbol}')
 
         col, row = int(col), int(row)
         status = True

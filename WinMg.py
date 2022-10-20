@@ -27,7 +27,7 @@ tile_size = win_size / line_quantity
 sector_size = win_size / big_line_quantity
 
 info_font_size = 100
-info_font = pygame.font.Font('freesansbold.ttf', info_font_size)
+info_font = pygame.font.Font("freesansbold.ttf", info_font_size)
 info_aa = True
 info_color = (0, 0, 0)
 info_bg = (255, 255, 255)
@@ -128,7 +128,7 @@ class Pen:
 
         # draw shadow behind active sector
         if sector is not None:
-            print(f"sector: {sector}")
+            # print(f"sector: {sector}")
             pygame.Surface.fill(self.screen, shadow_color, self.sectors_rects[sector])
 
         # rysowanie siatki
@@ -176,14 +176,14 @@ class Pen:
 
     def refresh(self, written_symbols_dic, next_sector, msg=None, draw_board=None, change_cur=False):
 
-        for sector in written_symbols_dic:
-            print(f"{sector}: {written_symbols_dic[sector]}")
+        # for sector in written_symbols_dic:
+        #     print(f"{sector}: {written_symbols_dic[sector]}")
 
         # rysowanie tła
         if draw_board is None:
             if next_sector == (4, 4):
                 next_sector = None
-            print(f"next sector: {next_sector}")
+            # print(f"next sector: {next_sector}")
             self.draw_default_board(next_sector)
         else:
             # customowe rysownie
