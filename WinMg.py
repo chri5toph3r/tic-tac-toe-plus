@@ -2,30 +2,37 @@ import pygame
 
 pygame.init()
 
+# general window variables
 win_title = 'TicTacToe+'
 icon = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/icon2.png')
 win_size = 900
 bg_color = (230, 230, 230)  # 'white'  # (106, 42, 245)
 
+# thin lines variables
 line_quantity = 9
 line_width = 2
 line_color = (150, 150, 150)  # (4, 57, 107)
 
+# thick lines variables
 big_line_quantity = 3
 big_line_width = 4
 big_line_color = 'black'  # (6, 14, 184)
 
+# symbols general variables
 circle_color = 'red'
 square_color = 'blue'
 symbol_width = int(win_size / 100)
 
+# miscellaneous variables
 shadow_color = 'white'  # '(230, 230, 230)
 
 rect_diff = symbol_width
 
+# size variables
 tile_size = win_size / line_quantity
 sector_size = win_size / big_line_quantity
 
+# screen message variables
 info_font_size = 100
 info_font = pygame.font.Font("freesansbold.ttf", info_font_size)
 info_aa = True
@@ -33,30 +40,34 @@ info_color = (0, 0, 0)
 info_bg = (255, 255, 255)
 info_coords = (win_size/2-(7/5*info_font_size), win_size/2-(1/2*info_font_size-1))
 
+# watermark variables
 watermark_font = pygame.font.Font('freesansbold.ttf', 10)
 watermark_txt = "Krzysztof Kulak"
 watermark_color = (220, 220, 220)
 watermark_coords = (10, 0)
 
+# general cursor variables
 # cur_img_width = 30
 # cur_img_r = cur_img_width/2
 # cur_img_ln_width = 5
 
-# create ellipse cursor
-# surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
-# pygame.draw.circle(surf, 'red', (cur_img_r, cur_img_r), cur_img_r, cur_img_ln_width)
-# circle = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
+# symbol cursors variables
+# circle
+# circle_surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
+# pygame.draw.circle(circle_surf, 'red', (cur_img_r, cur_img_r), cur_img_r, cur_img_ln_width)
+# circle = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), circle_surf)
 
-# create red crayon cursor
+# square
+# square_surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
+# pygame.draw.rect(square_surf, 'blue', (0, 0, cur_img_width, cur_img_width), cur_img_ln_width)
+# square = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), square_surf)
+
+# crayon cursors variables
+# circle
 circle_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor2.png')
 circle = pygame.cursors.Cursor((0, 127), circle_img)
 
-# create square cursor
-# surf = pygame.Surface((cur_img_width, cur_img_width), pygame.SRCALPHA)
-# pygame.draw.rect(surf, 'blue', (0, 0, cur_img_width, cur_img_width), cur_img_ln_width)
-# square = pygame.cursors.Cursor((int(cur_img_r), int(cur_img_r)), surf)
-
-# create blue crayon cursor
+# square
 square_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor1.png')
 square = pygame.cursors.Cursor((0, 127), square_img)
 
