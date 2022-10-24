@@ -1,4 +1,5 @@
 import pygame
+import time
 
 pygame.init()
 
@@ -187,10 +188,16 @@ class Pen:
 
     def refresh(self, written_symbols_dic, next_sector, msg=None, draw_board=None, change_cur=False):
 
+        if change_cur:
+            self.cursor_index += 1
+            self.cursor_index %= len(self.cursors)
+            pygame.mouse.set_cursor(self.cursors[self.cursor_index])
+
         # for sector in written_symbols_dic:
         #     print(f"{sector}: {written_symbols_dic[sector]}")
 
         # rysowanie tła
+        draw_board_start = time.time()
         if draw_board is None:
             if next_sector == (4, 4):
                 next_sector = None
@@ -199,11 +206,13 @@ class Pen:
         else:
             # customowe rysownie
             draw_board()
+        board_drawn_time = time.time()
 
         # draw outline
         # self.draw_symbol()
 
         # rysowanie symboli
+        symbols_drawing_start = time.time()
         counting = 0
         for sector in range(len(written_symbols_dic)):
             for col in range(3):
@@ -219,15 +228,17 @@ class Pen:
                             # print(f"sec_name: {sec_name}; tile: {tile}\n")
                             counting += 1
                             self.draw_symbol(written_symbols_dic[sec_name][tile], colrow)
+        symbols_drawing_end = time.time()
 
-        if change_cur:
-            self.cursor_index += 1
-            self.cursor_index %= len(self.cursors)
-            pygame.mouse.set_cursor(self.cursors[self.cursor_index])
+        # dev stuff
+        board_drawing_time = round(((board_drawn_time - draw_board_start)*1000), 4)
+        symbols_drawing_time = round(((symbols_drawing_end - symbols_drawing_start)*1000), 4)
+        drawing_time = round(((symbols_drawing_end - draw_board_start)*1000), 4)
 
         # print(f'sec_name: {sec_name}|(col, row): {(col, row)}')
         # print(f'colrow: {colrow}')
         # print(f"tiles checked: {counting}")
+        return board_drawing_time, symbols_drawing_time, drawing_time
 
 
 if __name__ == '__main__':

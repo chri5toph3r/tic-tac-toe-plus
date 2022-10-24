@@ -1,6 +1,7 @@
 from TicTacToePlus import *
 import WinMg
 import pygame
+import dev_graphs
 
 
 window = WinMg.Pen()
@@ -71,7 +72,8 @@ def main():
         # print('3. no one won the sector')
         pass
 
-    window.refresh(Sector.symbols_written, board.next_turn(tile_col, tile_row), change_cur=True)
+    times_vars = window.refresh(Sector.symbols_written, board.next_turn(tile_col, tile_row), change_cur=True)
+    dev_graphs.times(times_vars, board.board_turn, (sector_col, sector_row, tile_col, tile_row))
     return return_status
 
 
@@ -91,3 +93,4 @@ if __name__ == '__main__':
                 elif ctrl == -1:
                     fin_msg = 'draw'
                     window.fin_msg(fin_msg)
+    dev_graphs.generate("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/File1.ods", "Sheet 1")
