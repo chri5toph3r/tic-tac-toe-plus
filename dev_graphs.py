@@ -5,7 +5,7 @@ from pandas_ods_reader import read_ods
 from pyexcel_ods import save_data
 
 
-rows = [["turn", "t_board [ms]", "t_symbols [ms]", "t_all [ms]", "positions [sc:sr | tc:tr]"]]
+rows = [["turn", "t_board [ms]", "t_symbols [ms]", "t_all [ms]", "sector [col:row]", "tile [col:row]"]]
 
 
 def times(times_vars, turn, positions):
@@ -15,7 +15,7 @@ def times(times_vars, turn, positions):
     print(f"czas rysowania symboli: {t_symbols}ms")
     print(f"cały czas rysowania: {t_all}ms")
     print()
-    rows.append([turn, t_board, t_symbols, t_all, f"{positions[0]}:{positions[1]} | {positions[2]}:{positions[3]}"])
+    rows.append([turn, t_board, t_symbols, t_all, f"{positions[0]}:{positions[1]}", f"{positions[2]}:{positions[3]}"])
     return
 
 
@@ -27,7 +27,8 @@ def generate(res_file, res_sheet):
     df = read_ods(res_file)
     x = df["turn"]
     y = df["t_symbols [ms]"]
-    pylab.plot(x, y)
+    z = df["t_all [ms]"]
+    pylab.plot(x, y, z)
     pylab.show()
     return
 

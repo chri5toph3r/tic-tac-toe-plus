@@ -93,4 +93,4 @@ if __name__ == '__main__':
                 elif ctrl == -1:
                     fin_msg = 'draw'
                     window.fin_msg(fin_msg)
-    dev_graphs.generate("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/File1.ods", "Sheet 1")
+    dev_graphs.generate("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/dev1.ods", "Sheet 1")
