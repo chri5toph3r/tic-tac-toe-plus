@@ -197,6 +197,8 @@ class Pen:
         #     print(f"{sector}: {written_symbols_dic[sector]}")
 
         # rysowanie tła
+        # TODO: draw only important parts (bg only one time, thick lines only one time,
+        #  bg color shadow to recently lightly shadowed sector)
         draw_board_start = time.time()
         if draw_board is None:
             if next_sector == (4, 4):
@@ -212,6 +214,7 @@ class Pen:
         # self.draw_symbol()
 
         # rysowanie symboli
+        # TODO: make it so that max two sectors are being updated, bg color shadow to the won sector
         symbols_drawing_start = time.time()
         counting = 0
         for sector in range(len(written_symbols_dic)):
