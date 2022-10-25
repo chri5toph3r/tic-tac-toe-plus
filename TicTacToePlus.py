@@ -82,26 +82,26 @@ class Sector:
                 except KeyError:
                     pass
 
+                if not is_winner:
+                    # sprawdzanie skosów
+                    try:
+                        if Sector.symbols_written[self.id][(1, 1)] != Sector.blank and nie_remis:
+                            # skos lewo-prawo
+                            is_winner = Sector.symbols_written[self.id][(0, 0)] == Sector.symbols_written[self.id][(1, 1)] \
+                                    == Sector.symbols_written[self.id][(2, 2)]
+                    except KeyError:
+                        pass
+
                     if not is_winner:
-                        # sprawdzanie skosów
                         try:
                             if Sector.symbols_written[self.id][(1, 1)] != Sector.blank and nie_remis:
-                                # skos lewo-prawo
-                                is_winner = Sector.symbols_written[self.id][(0, 0)] == Sector.symbols_written[self.id][(1, 1)] \
-                                        == Sector.symbols_written[self.id][(2, 2)]
+                                # skos prawo-lewo
+                                is_winner = Sector.symbols_written[self.id][(0, 2)] == Sector.symbols_written[self.id][(1, 1)] \
+                                        == Sector.symbols_written[self.id][(2, 0)]
                         except KeyError:
-                            pass
-
-                        if not is_winner:
-                            try:
-                                if Sector.symbols_written[self.id][(1, 1)] != Sector.blank and nie_remis:
-                                    # skos prawo-lewo
-                                    is_winner = Sector.symbols_written[self.id][(0, 2)] == Sector.symbols_written[self.id][(1, 1)] \
-                                            == Sector.symbols_written[self.id][(2, 0)]
-                            except KeyError:
-                                # remis dla pełnej planszy
-                                if self.turn == 9:
-                                    status = -1
+                            # remis dla pełnej planszy
+                            if self.turn == 9:
+                                status = -1
         if is_winner:
             status = 1
         # zwróć status: 0 = nikt nie wygrał; 1 = ktoś wygrał; -1 = remis
