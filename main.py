@@ -43,11 +43,11 @@ def main():
         return return_status
 
     # jeśli tak, to narysuj symbol
-    #if Sector.board_turn == 1:
+    # if Sector.board_turn == 1:
     #    window.draw_symbol(Sector.turn_symbol)
-    #else:
+    # else:
     #    window.draw_symbol(Sector.turn_symbol)
-    #print('2.5 symbol drawn')
+    # print('2.5 symbol drawn')
 
     # TODO: optimalize checking
     # czy ktoś wygrał sektor?
@@ -59,7 +59,7 @@ def main():
         # jeśli tak, narysuj symbol, lub wpisz 'draw'
         if sector_status == 1:
             board.write_symbol(sector_col, sector_row)
-            #window.draw_symbol(Sector.turn_symbol, (sector_col, sector_row))
+            # window.draw_symbol(Sector.turn_symbol, (sector_col, sector_row))
         else:
             board.write_symbol(sector_col, sector_row, 'draw')
         window.refresh(Sector.symbols_written, (tile_col, tile_row))
@@ -85,6 +85,7 @@ def main():
     print(f"czas wykonywania main: {main_time}ms")
     dev_graphs.times(times_vars, main_time, t_check_sector,
                      board.board_turn, (sector_col, sector_row, tile_col, tile_row))
+    dev_graphs.generate("D:/_Programming/python/TicTacToe+/dev1.ods", "Sheet 1")
     return return_status
 
 

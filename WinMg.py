@@ -5,7 +5,7 @@ pygame.init()
 
 # general window variables
 win_title = 'TicTacToe+'
-icon = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/icon2.png')
+icon = pygame.image.load('D:/_Programming/python/TicTacToe+/graphics/icon2.png')
 win_size = 900
 bg_color = (230, 230, 230)  # 'white'  # (106, 42, 245)
 
@@ -65,11 +65,11 @@ watermark_coords = (10, 0)
 
 # crayon cursors variables
 # circle
-circle_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor2.png')
+circle_img = pygame.image.load('D:/_Programming/python/TicTacToe+/graphics/cursor2.png')
 circle = pygame.cursors.Cursor((0, 127), circle_img)
 
 # square
-square_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor1.png')
+square_img = pygame.image.load('D:/_Programming/python/TicTacToe+/graphics/cursor1.png')
 square = pygame.cursors.Cursor((0, 127), square_img)
 
 
