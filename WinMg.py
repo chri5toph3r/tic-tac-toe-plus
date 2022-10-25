@@ -214,7 +214,7 @@ class Pen:
         # self.draw_symbol()
 
         # rysowanie symboli
-        # TODO: make it so that max two sectors are being updated, bg color shadow to the won sector
+        # TODO: make it so that max two sectors are being updated (thus checked), bg color shadow to the won sector
         symbols_drawing_start = time.time()
         counting = 0
         for sector in range(len(written_symbols_dic)):

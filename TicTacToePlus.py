@@ -60,6 +60,8 @@ class Sector:
         # sprawdź tylko dla rzędu i kolumny, w których został ostatnio postawiony znak
         #print(f"last row: {self.last_row}")
         is_winner = False
+        # TODO: instead of exceptions, check if keys are in dictionary (2 besides the one written just now)
+        # TODO: draws don't work btw
         if nie_remis:
             try:
                 # sprawdzanie wierszy

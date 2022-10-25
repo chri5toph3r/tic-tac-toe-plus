@@ -50,6 +50,7 @@ def main():
     #print('2.5 symbol drawn')
 
     # czy ktoś wygrał sektor?
+    check_start = time()
     sector_status = sectors_obj[sector_col, sector_row].check_winner()  # 3 możliwe wartości zwrotne
     # print(f"sector status: {sector_status}")
     if sector_status:
@@ -73,12 +74,14 @@ def main():
     else:
         # print('3. no one won the sector')
         pass
-
+    check_end = time()
+    t_check_sector = round(((check_end - check_start)*1000), 4)
     times_vars = window.refresh(Sector.symbols_written, board.next_turn(tile_col, tile_row), change_cur=True)
     end = time()
     main_time = round(((end - start)*1000), 4)
     print(f"czas wykonywania main: {main_time}ms")
-    dev_graphs.times(times_vars, main_time, board.board_turn, (sector_col, sector_row, tile_col, tile_row))
+    dev_graphs.times(times_vars, main_time, t_check_sector,
+                     board.board_turn, (sector_col, sector_row, tile_col, tile_row))
     return return_status
 
 
