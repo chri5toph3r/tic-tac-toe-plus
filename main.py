@@ -49,6 +49,7 @@ def main():
     #    window.draw_symbol(Sector.turn_symbol)
     #print('2.5 symbol drawn')
 
+    # TODO: optimalize checking
     # czy ktoś wygrał sektor?
     check_start = time()
     sector_status = sectors_obj[sector_col, sector_row].check_winner()  # 3 możliwe wartości zwrotne
@@ -77,6 +78,7 @@ def main():
     check_end = time()
     t_check_sector = round(((check_end - check_start)*1000), 4)
     print(f"czas sprawdzania czy ktoś wygrał: {t_check_sector}ms")
+    # TODO: optimalize refreshing
     times_vars = window.refresh(Sector.symbols_written, board.next_turn(tile_col, tile_row), change_cur=True)
     end = time()
     main_time = round(((end - start)*1000), 4)
