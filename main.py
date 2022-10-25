@@ -76,6 +76,7 @@ def main():
         pass
     check_end = time()
     t_check_sector = round(((check_end - check_start)*1000), 4)
+    print(f"czas sprawdzania czy ktoś wygrał: {t_check_sector}ms")
     times_vars = window.refresh(Sector.symbols_written, board.next_turn(tile_col, tile_row), change_cur=True)
     end = time()
     main_time = round(((end - start)*1000), 4)
