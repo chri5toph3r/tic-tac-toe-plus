@@ -2,6 +2,7 @@ from TicTacToePlus import *
 import WinMg
 import pygame
 import dev_graphs
+from time import time
 
 
 window = WinMg.Pen()
@@ -18,6 +19,7 @@ for col in range(3):
 
 # wywoływanie odpowiedniego sektora
 def main():
+    start = time()
     global sectors_obj, board
 
     return_status = 0
@@ -73,7 +75,10 @@ def main():
         pass
 
     times_vars = window.refresh(Sector.symbols_written, board.next_turn(tile_col, tile_row), change_cur=True)
-    dev_graphs.times(times_vars, board.board_turn, (sector_col, sector_row, tile_col, tile_row))
+    end = time()
+    main_time = round(((end - start)*1000), 4)
+    print(f"czas wykonywania main: {main_time}ms")
+    dev_graphs.times(times_vars, main_time, board.board_turn, (sector_col, sector_row, tile_col, tile_row))
     return return_status
 
 
