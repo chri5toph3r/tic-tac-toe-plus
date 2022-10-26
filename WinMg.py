@@ -1,5 +1,4 @@
 import pygame
-import time
 
 pygame.init()
 
@@ -103,7 +102,8 @@ class Pen:
                              (win_size, tile_len * i), ln_width)
         return
 
-    def draw_rects(self, rect_quantity, target, rect_len_diff):
+    @staticmethod
+    def draw_rects(rect_quantity, target, rect_len_diff):
         tile_len = win_size / rect_quantity
         # tworzenie siatki pól na znaki
         for col in range(rect_quantity):
@@ -114,15 +114,15 @@ class Pen:
                 target[(col, row)] = pygame.Rect(left, top, side_ln, side_ln)
 
     # uses 9x9 tiles grid instead of 3x3x3x3
-    def draw_symbol(self, symbol, colrow, target=None):
+    def draw_symbol(self, symbol_to_draw, colrow, target=None):
         if target is None:
             target = self.tiles_rects[colrow]
         else:
             target = self.sectors_rects[colrow]
 
-        if symbol == 'o':
+        if symbol_to_draw == 'o':
             pygame.draw.ellipse(self.screen, circle_color, target, symbol_width)
-        elif symbol == 'x':
+        elif symbol_to_draw == 'x':
             # pygame.Rect.inflate_ip(target, (-symbol_width, -symbol_width))
             pygame.draw.rect(self.screen, square_color, target, symbol_width)
 
@@ -205,30 +205,22 @@ class Pen:
         previous_sector = self.pos_system_translate((int(self.col), int(self.row)))[0:2]
         sectors_to_update = [previous_sector]
         # rysowanie tła
-        draw_board_start = time.time()
         if draw_board is None:
             if next_sector == (4, 4):
                 next_sector = None
-            else:
+            elif next_sector is not None:
                 sectors_to_update.append(next_sector)
             # print(f"next sector: {next_sector}")
             self.draw_default_board(next_sector, previous_sector)
         else:
             # customowe rysownie
             draw_board()
-        board_drawn_time = time.time()
 
         # draw outline
         # self.draw_symbol()
 
         # rysowanie symboli
-        # TODO: make it so that max two sectors are being updated (thus checked), bg color shadow to the won sector
-        symbols_drawing_start = time.time()
         counting = 0
-        # there's about 17ms spared for one symbol, so after optimization, max refresh time should be around 306ms
-        # which still is not satisfying, but it's not 700ms
-        # (recorded highest is 812ms for move 61, but theoretically could be higher)
-        # sectors = range(len(written_symbols_dic))
         for sec_name in sectors_to_update:
             # jeśli sektor jest wygrany to narysuj tylko duży symbol
             if sec_name in written_symbols_dic[(3, 3)]:
@@ -240,17 +232,10 @@ class Pen:
                     # print(f"sec_name: {sec_name}; tile: {tile}\n")
                     counting += 1
                     self.draw_symbol(written_symbols_dic[sec_name][tile], colrow)
-        symbols_drawing_end = time.time()
-
-        # dev stuff
-        board_drawing_time = round(((board_drawn_time - draw_board_start)*1000), 4)
-        symbols_drawing_time = round(((symbols_drawing_end - symbols_drawing_start)*1000), 4)
-        drawing_time = round(((symbols_drawing_end - draw_board_start)*1000), 4)
 
         # print(f'sec_name: {sec_name}|(col, row): {(col, row)}')
         # print(f'colrow: {colrow}')
         # print(f"tiles checked: {counting}")
-        return board_drawing_time, symbols_drawing_time, drawing_time
 
 
 if __name__ == '__main__':

@@ -1,8 +1,6 @@
 from TicTacToePlus import *
 import WinMg
 import pygame
-import dev_graphs
-from time import time
 
 
 window = WinMg.Pen()
@@ -19,7 +17,6 @@ for col in range(3):
 
 # wywoływanie odpowiedniego sektora
 def main():
-    start = time()
     global sectors_obj, board
 
     return_status = 0
@@ -72,14 +69,7 @@ def main():
         cursor_change = True
         next_sector = board.next_turn(tile_col, tile_row)
 
-
-    # TODO: optimize refresh
-    times_vars = window.refresh(Sector.symbols_written, next_sector, change_cur=cursor_change)
-    end = time()
-    main_time = round(((end - start)*1000), 4)
-
-    dev_graphs.times(times_vars, main_time, t_check_sector,
-                     board.board_turn, (sector_col, sector_row, tile_col, tile_row))
+    window.refresh(Sector.symbols_written, next_sector, change_cur=cursor_change)
     return return_status
 
 
@@ -99,4 +89,3 @@ if __name__ == '__main__':
                 elif ctrl == -1:
                     fin_msg = 'draw'
                     window.fin_msg(fin_msg)
-    dev_graphs.generate("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/dev1.ods", "Sheet 1")
