@@ -48,8 +48,8 @@ class Sector:
         status = 0
 
         # dla planszy, jeśli w sektorze był remis (żeby 3 remisy nie mogły wygrać)
-        if self.id in Sector.symbols_written and (self.last_row, self.last_col) in Sector.symbols_written[self.id]:
-            if Sector.symbols_written[self.id][(self.last_row, self.last_col)] == 'draw':
+        if self.id in Sector.symbols_written and (self.last_col, self.last_row) in Sector.symbols_written[self.id]:
+            if Sector.symbols_written[self.id][(self.last_col, self.last_row)] == 'draw':
                 return status
         # sprawdzanie skosów
         diagonals = [[(0, 0), (1, 1), (2, 2)], [(0, 2), (1, 1), (2, 0)]]
