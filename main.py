@@ -22,8 +22,6 @@ def main():
     return_status = 0
 
     positions = window.pos_system_translate(window.pos_translate(pygame.mouse.get_pos()))
-    # print(positions)
-
     if positions is None:
         return return_status
 
@@ -31,35 +29,20 @@ def main():
 
     # czy odpowiedni sektor?
     if not board.check_sector(sector_col, sector_row, (tile_col, tile_row)):
-        # print('1. incorrect sector')
         return return_status
 
     # czy odpowiednie pole?
     if not sectors_obj[sector_col, sector_row].write_symbol(tile_col, tile_row):
-        # print('2. incorrect tile')
         return return_status
-
-    # jeśli tak, to narysuj symbol
-    # if Sector.board_turn == 1:
-    #    window.draw_symbol(Sector.turn_symbol)
-    # else:
-    #    window.draw_symbol(Sector.turn_symbol)
-    # print('2.5 symbol drawn')
-
 
     # czy ktoś wygrał sektor?
     sector_status = sectors_obj[sector_col, sector_row].check_winner()  # 3 możliwe wartości zwrotne
-    # print(f"sector status: {sector_status}")
-    t_check_sector = 0
     if sector_status:
-        # sectors_obj[sector_col, sector_row].write_board()
         # jeśli tak, narysuj symbol, lub wpisz 'draw'
         if sector_status == 1:
             board.write_symbol(sector_col, sector_row)
-            # window.draw_symbol(Sector.turn_symbol, (sector_col, sector_row))
         else:
             board.write_symbol(sector_col, sector_row, 'draw')
-
         # czy ktoś wygrał grę?
         return_status = board.check_winner()
 
