@@ -44,7 +44,7 @@ info_coords = (win_size/2-(7/5*info_font_size), win_size/2-(1/2*info_font_size-1
 # watermark variables
 watermark_font = pygame.font.Font('freesansbold.ttf', 10)
 watermark_txt = "Krzysztof Kulak"
-watermark_color = (220, 220, 220)
+watermark_color = (250, 250, 250)
 watermark_coords = (10, 0)
 
 # general cursor variables
@@ -132,21 +132,27 @@ class Pen:
         pygame.display.flip()
         return
 
-    def draw_default_board(self, sector=None):
-        self.screen.fill(bg_color)
-
+    def write_watermark(self):
         watermark = watermark_font.render(watermark_txt, info_aa, watermark_color)
         self.screen.blit(watermark, watermark_coords)
 
+    def draw_default_board(self, shadow_sector=None, refill_sector=None):
+        if refill_sector is None:
+            self.screen.fill(bg_color)
+            self.write_watermark()
+        else:
+            pygame.Surface.fill(self.screen, bg_color, self.sectors_rects[refill_sector])
+            if refill_sector == (0, 0):
+                self.write_watermark()
+
         # draw shadow behind active sector
-        if sector is not None:
-            # print(f"sector: {sector}")
-            pygame.Surface.fill(self.screen, shadow_color, self.sectors_rects[sector])
+        if shadow_sector is not None:
+            pygame.Surface.fill(self.screen, shadow_color, self.sectors_rects[shadow_sector])
 
         # rysowanie siatki
         self.draw_lines(line_quantity, line_width, line_color)
         self.draw_rects(line_quantity, self.tiles_rects, rect_diff)
-        # print(self.tiles_pos)
+
         self.draw_lines(big_line_quantity, big_line_width, big_line_color)
         self.draw_rects(big_line_quantity, self.sectors_rects, rect_diff)
         pygame.display.flip()
@@ -196,15 +202,17 @@ class Pen:
         # for sector in written_symbols_dic:
         #     print(f"{sector}: {written_symbols_dic[sector]}")
 
+        previous_sector = self.pos_system_translate((int(self.col), int(self.row)))[0:2]
+        sectors_to_update = [previous_sector]
         # rysowanie tła
-        # TODO: draw only important parts (bg only one time, thick lines only one time,
-        #  bg color shadow to recently lightly shadowed sector)
         draw_board_start = time.time()
         if draw_board is None:
             if next_sector == (4, 4):
                 next_sector = None
+            else:
+                sectors_to_update.append(next_sector)
             # print(f"next sector: {next_sector}")
-            self.draw_default_board(next_sector)
+            self.draw_default_board(next_sector, previous_sector)
         else:
             # customowe rysownie
             draw_board()
@@ -220,20 +228,18 @@ class Pen:
         # there's about 17ms spared for one symbol, so after optimization, max refresh time should be around 306ms
         # which still is not satisfying, but it's not 700ms
         # (recorded highest is 812ms for move 61, but theoretically could be higher)
-        for sector in range(len(written_symbols_dic)):
-            for col in range(3):
-                for row in range(3):
-                    sec_name = col, row
-                    # jeśli sektor jest wygrany to narysuj tylko duży symbol
-                    if sec_name in written_symbols_dic[(3, 3)]:
-                        self.draw_symbol(written_symbols_dic[(3, 3)][sec_name], sec_name, 'board')
-                    # jeśli sektor niewygrany to rysuj małe symbole
-                    else:
-                        for tile in written_symbols_dic[sec_name]:
-                            colrow = self.pos_system_translate(sec_name, tile)
-                            # print(f"sec_name: {sec_name}; tile: {tile}\n")
-                            counting += 1
-                            self.draw_symbol(written_symbols_dic[sec_name][tile], colrow)
+        # sectors = range(len(written_symbols_dic))
+        for sec_name in sectors_to_update:
+            # jeśli sektor jest wygrany to narysuj tylko duży symbol
+            if sec_name in written_symbols_dic[(3, 3)]:
+                self.draw_symbol(written_symbols_dic[(3, 3)][sec_name], sec_name, 'board')
+            # jeśli sektor niewygrany to rysuj małe symbole
+            else:
+                for tile in written_symbols_dic[sec_name]:
+                    colrow = self.pos_system_translate(sec_name, tile)
+                    # print(f"sec_name: {sec_name}; tile: {tile}\n")
+                    counting += 1
+                    self.draw_symbol(written_symbols_dic[sec_name][tile], colrow)
         symbols_drawing_end = time.time()
 
         # dev stuff
