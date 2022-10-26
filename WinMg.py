@@ -209,16 +209,17 @@ class Pen:
         # rysowanie symboli
         counting = 0
         for sec_name in sectors_to_update:
-            # jeśli sektor jest wygrany to narysuj tylko duży symbol
-            if sec_name in written_symbols_dic[(3, 3)]:
-                self.draw_symbol(written_symbols_dic[(3, 3)][sec_name], sec_name, 'board')
-            # jeśli sektor niewygrany to rysuj małe symbole
-            else:
+            if sec_name not in written_symbols_dic[(3, 3)]:
+                # jeśli sektor niewygrany to rysuj małe symbole
                 for tile in written_symbols_dic[sec_name]:
                     colrow = self.pos_system_translate(sec_name, tile)
                     # print(f"sec_name: {sec_name}; tile: {tile}\n")
                     counting += 1
                     self.draw_symbol(written_symbols_dic[sec_name][tile], colrow)
+
+        for sec_name in written_symbols_dic[(3, 3)]:
+            # jeśli sektor jest wygrany to narysuj tylko duży symbol
+            self.draw_symbol(written_symbols_dic[(3, 3)][sec_name], sec_name, 'board')
 
 
 if __name__ == '__main__':
