@@ -123,12 +123,9 @@ class Pen:
         if symbol_to_draw == 'o':
             pygame.draw.ellipse(self.screen, circle_color, target, symbol_width)
         elif symbol_to_draw == 'x':
-            # pygame.Rect.inflate_ip(target, (-symbol_width, -symbol_width))
             pygame.draw.rect(self.screen, square_color, target, symbol_width)
 
-        # self.move_outline(colrow)
         pygame.display.update()
-
         pygame.display.flip()
         return
 
@@ -163,19 +160,16 @@ class Pen:
     def pos_system_translate(pos1, pos2=None):
 
         if pos1 is None:
-            # print(f"pos1 is None -> pos1 ({pos1}) returned")
             return pos1
 
         # 3x3 x 3x3 -> 9x9
         if pos2 is not None:
             sector_col, sector_row = pos1
             tile_col, tile_row = pos2
-            # print(f"pos1 = {pos1} & pos2 = {pos2}; return = {sector_col*3 + tile_col, sector_row*3 + sector_row}")
             return sector_col*3 + tile_col, sector_row*3 + tile_row
 
         # 9x9 -> 3x3 x 3x3
         board_col, board_row = pos1
-        # print(f'pos_translate pos1: {pos1}; bc, br: {board_col, board_row}')
         return board_col // 3, board_row // 3, board_col % 3, board_row % 3
 
     def pos_translate(self, position):
@@ -199,9 +193,6 @@ class Pen:
             self.cursor_index %= len(self.cursors)
             pygame.mouse.set_cursor(self.cursors[self.cursor_index])
 
-        # for sector in written_symbols_dic:
-        #     print(f"{sector}: {written_symbols_dic[sector]}")
-
         previous_sector = self.pos_system_translate((int(self.col), int(self.row)))[0:2]
         sectors_to_update = [previous_sector]
         # rysowanie tła
@@ -210,14 +201,10 @@ class Pen:
                 next_sector = None
             elif next_sector is not None:
                 sectors_to_update.append(next_sector)
-            # print(f"next sector: {next_sector}")
             self.draw_default_board(next_sector, previous_sector)
         else:
             # customowe rysownie
             draw_board()
-
-        # draw outline
-        # self.draw_symbol()
 
         # rysowanie symboli
         counting = 0
@@ -232,10 +219,6 @@ class Pen:
                     # print(f"sec_name: {sec_name}; tile: {tile}\n")
                     counting += 1
                     self.draw_symbol(written_symbols_dic[sec_name][tile], colrow)
-
-        # print(f'sec_name: {sec_name}|(col, row): {(col, row)}')
-        # print(f'colrow: {colrow}')
-        # print(f"tiles checked: {counting}")
 
 
 if __name__ == '__main__':

@@ -10,14 +10,12 @@ class Sector:
     def __init__(self, sector_id):
         self.id = sector_id
         Sector.symbols_written[self.id] = {}
-        # print(f'{self.id} dic: {Sector.symbols_written}')
         self.turn = 0
         # last potrzebny do skróconego sprawdzania, czy ktoś wygrał
         self.last_col = 0
         self.last_row = 0
 
     def write_board(self):
-        # print(self.id)
         for row in range(3):
             for col in range(3):
                 if (col, row) in Sector.symbols_written[self.id]:
@@ -31,7 +29,6 @@ class Sector:
     def write_symbol(self, col, row, symbol=None):
         if symbol is None:
             symbol = Sector.turn_symbol
-            # print(f'\n{self} symbol {symbol}')
 
         col, row = int(col), int(row)
         status = True
@@ -51,9 +48,9 @@ class Sector:
         status = 0
 
         # dla planszy, jeśli w sektorze był remis (żeby 3 remisy nie mogły wygrać)
-        # if self.id in Sector.symbols_written and (self.last_row, self.last_col) in Sector.symbols_written[self.id]:
-        #     if Sector.symbols_written[self.id][(self.last_row, self.last_col)] != 'draw':
-        #         return status
+        if self.id in Sector.symbols_written and (self.last_row, self.last_col) in Sector.symbols_written[self.id]:
+            if Sector.symbols_written[self.id][(self.last_row, self.last_col)] == 'draw':
+                return status
         # sprawdzanie skosów
         diagonals = [[(0, 0), (1, 1), (2, 2)], [(0, 2), (1, 1), (2, 0)]]
         for diagonal in diagonals:
@@ -68,11 +65,6 @@ class Sector:
                     if is_winner:
                         return 1
 
-        # sprawdź tylko dla rzędu i kolumny, w których został ostatnio postawiony znak
-        # print(f"last row: {self.last_row}")
-        is_winner = False
-        # TODO: instead of exceptions, check if keys are in dictionary (2 besides the one written just now)
-        # TODO: draws don't work btw
         grid_a = [0, 1, 2]
 
         # sprawdzanie rzędu
@@ -101,7 +93,6 @@ class Sector:
             if is_winner:
                 return 1
 
-
         # remis dla pełnej planszy
         if self.turn == 9:
             status = -1
@@ -117,21 +108,17 @@ class Board(Sector):
         self.next_sector = 4, 4  # 4, 4 -> freetake
 
     def check_sector(self, sector_col, sector_row, next_sector_to):
-        # print(f"next sector while checking: {self.next_sector}")
         status = True
         if self.next_sector != (4, 4):
             # jeśli nie freetake
             # wybrany sektor i next_sector muszą być te same
-            # print('Incorrect sector has been chosen!')
             status = self.next_sector == (sector_col, sector_row)
         else:
             # jeśli freetake
             # mid-block
-            # print('mid-block!')
             if Sector.board_turn == 0:
                 status = (sector_col, sector_row) != (1, 1)
             # skończony sektor
-            # print('Sector is already finished!')
             else:
                 status = self.id not in Sector.symbols_written[(3, 3)]
 
@@ -142,15 +129,11 @@ class Board(Sector):
     def next_turn(self, tile_col, tile_row):
         Sector.board_turn += 1
         Sector.turn_symbol = Sector.symbols[Sector.board_turn % 2]
-        # print(f'board turn: {Sector.board_turn}')
-
-        # print(f"id: {self.id}; board symbols: {Sector.symbols_written[3, 3]}")
 
         if (tile_col, tile_row) in Sector.symbols_written[3, 3]:
             self.next_sector = 4, 4
         else:
             self.next_sector = tile_col, tile_row
-        # print(f"next sector after drawing: {self.next_sector}")
         return self.next_sector
 
 
