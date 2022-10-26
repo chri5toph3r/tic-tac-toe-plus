@@ -49,11 +49,11 @@ def main():
     #    window.draw_symbol(Sector.turn_symbol)
     # print('2.5 symbol drawn')
 
-    # TODO: optimalize checking
+
     # czy ktoś wygrał sektor?
-    check_start = time()
     sector_status = sectors_obj[sector_col, sector_row].check_winner()  # 3 możliwe wartości zwrotne
     # print(f"sector status: {sector_status}")
+    t_check_sector = 0
     if sector_status:
         # sectors_obj[sector_col, sector_row].write_board()
         # jeśli tak, narysuj symbol, lub wpisz 'draw'
@@ -62,30 +62,24 @@ def main():
             # window.draw_symbol(Sector.turn_symbol, (sector_col, sector_row))
         else:
             board.write_symbol(sector_col, sector_row, 'draw')
-        window.refresh(Sector.symbols_written, (tile_col, tile_row))
 
         # czy ktoś wygrał grę?
         return_status = board.check_winner()
-        if return_status:
-            return return_status
-        else:
-            # print('4. no one won the game')
-            pass
 
-    else:
-        # print('3. no one won the sector')
-        pass
-    check_end = time()
-    t_check_sector = round(((check_end - check_start)*1000), 4)
-    print(f"czas sprawdzania czy ktoś wygrał: {t_check_sector}ms")
-    # TODO: optimalize refreshing
-    times_vars = window.refresh(Sector.symbols_written, board.next_turn(tile_col, tile_row), change_cur=True)
+    cursor_change = False
+    next_sector = None
+    if return_status == 0:
+        cursor_change = True
+        next_sector = board.next_turn(tile_col, tile_row)
+
+
+    # TODO: optimize refresh
+    times_vars = window.refresh(Sector.symbols_written, next_sector, change_cur=cursor_change)
     end = time()
     main_time = round(((end - start)*1000), 4)
-    print(f"czas wykonywania main: {main_time}ms")
+
     dev_graphs.times(times_vars, main_time, t_check_sector,
                      board.board_turn, (sector_col, sector_row, tile_col, tile_row))
-    dev_graphs.generate("D:/_Programming/python/TicTacToe+/dev1.ods", "Sheet 1")
     return return_status
 
 

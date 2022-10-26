@@ -48,62 +48,63 @@ class Sector:
         return status
 
     def check_winner(self):
-
         status = 0
 
         # dla planszy, jeśli w sektorze był remis (żeby 3 remisy nie mogły wygrać)
-        try:
-            nie_remis = Sector.symbols_written[self.id][(self.last_row, self.last_col)] != 'draw'
-        except KeyError:
-            nie_remis = True
+        # if self.id in Sector.symbols_written and (self.last_row, self.last_col) in Sector.symbols_written[self.id]:
+        #     if Sector.symbols_written[self.id][(self.last_row, self.last_col)] != 'draw':
+        #         return status
+        # sprawdzanie skosów
+        diagonals = [[(0, 0), (1, 1), (2, 2)], [(0, 2), (1, 1), (2, 0)]]
+        for diagonal in diagonals:
+            if (self.last_col, self.last_row) in diagonal:
+                diagonal.remove((self.last_col, self.last_row))
+                are_in_dic = diagonal[0] in Sector.symbols_written[self.id] and \
+                             diagonal[1] in Sector.symbols_written[self.id]
+                if are_in_dic:
+                    is_winner = Sector.symbols_written[self.id][diagonal[0]] == \
+                                Sector.symbols_written[self.id][diagonal[1]] == \
+                                Sector.symbols_written[self.id][(self.last_col, self.last_row)]
+                    if is_winner:
+                        return 1
 
         # sprawdź tylko dla rzędu i kolumny, w których został ostatnio postawiony znak
-        #print(f"last row: {self.last_row}")
+        # print(f"last row: {self.last_row}")
         is_winner = False
         # TODO: instead of exceptions, check if keys are in dictionary (2 besides the one written just now)
         # TODO: draws don't work btw
-        if nie_remis:
-            try:
-                # sprawdzanie wierszy
-                is_winner = \
-                    Sector.symbols_written[self.id][(0, self.last_row)] \
-                    == Sector.symbols_written[self.id][(1, self.last_row)] \
-                    == Sector.symbols_written[self.id][(2, self.last_row)]
-            except KeyError:
-                pass
+        grid_a = [0, 1, 2]
 
-            if not is_winner:
-                # sprawdzanie kolumn
-                try:
-                    is_winner = \
-                        Sector.symbols_written[self.id][(self.last_col, 0)] \
-                        == Sector.symbols_written[self.id][(self.last_col, 1)] \
-                        == Sector.symbols_written[self.id][(self.last_col, 2)]
-                except KeyError:
-                    pass
+        # sprawdzanie rzędu
+        temp_range = grid_a.copy()  # temporary list
+        temp_range.remove(self.last_row)
+        are_in_dic = (self.last_col, temp_range[0]) in Sector.symbols_written[self.id] and \
+                     (self.last_col, temp_range[1]) in Sector.symbols_written[self.id]
+        if are_in_dic:
+            is_winner = \
+                Sector.symbols_written[self.id][(self.last_col, 0)] == \
+                Sector.symbols_written[self.id][(self.last_col, 1)] == \
+                Sector.symbols_written[self.id][(self.last_col, 2)]
+            if is_winner:
+                return 1
 
-                if not is_winner:
-                    # sprawdzanie skosów
-                    try:
-                        if Sector.symbols_written[self.id][(1, 1)] != Sector.blank and nie_remis:
-                            # skos lewo-prawo
-                            is_winner = Sector.symbols_written[self.id][(0, 0)] == Sector.symbols_written[self.id][(1, 1)] \
-                                    == Sector.symbols_written[self.id][(2, 2)]
-                    except KeyError:
-                        pass
+        # sprawdzanie kolumny
+        temp_range = grid_a.copy()  # temporary list
+        temp_range.remove(self.last_col)
+        are_in_dic = (temp_range[0], self.last_row) in Sector.symbols_written[self.id] and \
+                     (temp_range[1], self.last_row) in Sector.symbols_written[self.id]
+        if are_in_dic:
+            is_winner = \
+                Sector.symbols_written[self.id][(0, self.last_row)] == \
+                Sector.symbols_written[self.id][(1, self.last_row)] == \
+                Sector.symbols_written[self.id][(2, self.last_row)]
+            if is_winner:
+                return 1
 
-                    if not is_winner:
-                        try:
-                            if Sector.symbols_written[self.id][(1, 1)] != Sector.blank and nie_remis:
-                                # skos prawo-lewo
-                                is_winner = Sector.symbols_written[self.id][(0, 2)] == Sector.symbols_written[self.id][(1, 1)] \
-                                        == Sector.symbols_written[self.id][(2, 0)]
-                        except KeyError:
-                            # remis dla pełnej planszy
-                            if self.turn == 9:
-                                status = -1
-        if is_winner:
-            status = 1
+
+        # remis dla pełnej planszy
+        if self.turn == 9:
+            status = -1
         # zwróć status: 0 = nikt nie wygrał; 1 = ktoś wygrał; -1 = remis
         return status
 

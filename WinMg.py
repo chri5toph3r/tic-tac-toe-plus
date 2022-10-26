@@ -5,7 +5,7 @@ pygame.init()
 
 # general window variables
 win_title = 'TicTacToe+'
-icon = pygame.image.load('D:/_Programming/python/TicTacToe+/graphics/icon2.png')
+icon = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/icon2.png')
 win_size = 900
 bg_color = (230, 230, 230)  # 'white'  # (106, 42, 245)
 
@@ -65,11 +65,11 @@ watermark_coords = (10, 0)
 
 # crayon cursors variables
 # circle
-circle_img = pygame.image.load('D:/_Programming/python/TicTacToe+/graphics/cursor2.png')
+circle_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor2.png')
 circle = pygame.cursors.Cursor((0, 127), circle_img)
 
 # square
-square_img = pygame.image.load('D:/_Programming/python/TicTacToe+/graphics/cursor1.png')
+square_img = pygame.image.load('C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/graphics/cursor1.png')
 square = pygame.cursors.Cursor((0, 127), square_img)
 
 
@@ -217,6 +217,9 @@ class Pen:
         # TODO: make it so that max two sectors are being updated (thus checked), bg color shadow to the won sector
         symbols_drawing_start = time.time()
         counting = 0
+        # there's about 17ms spared for one symbol, so after optimization, max refresh time should be around 306ms
+        # which still is not satisfying, but it's not 700ms
+        # (recorded highest is 812ms for move 61, but theoretically could be higher)
         for sector in range(len(written_symbols_dic)):
             for col in range(3):
                 for row in range(3):
