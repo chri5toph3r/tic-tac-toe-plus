@@ -24,7 +24,7 @@ class DataGetter:
 
         if timer_reset:
             self.set_timer()
-        return t
+        return turn, symbol, t
 
 
 class DataBase(DataGetter):
@@ -32,15 +32,6 @@ class DataBase(DataGetter):
         super().__init__()
         self.conn = sqlite3.connect('tic-tac-toe-plus.db')
         self.cur = self.conn.cursor()
-
-    @staticmethod
-    def convert_to_sql_str(values):
-        col_str = ""
-        for column in values[:-1]:
-            col_str += str(column) + ", "
-        col_str += str(values[-1])
-        dprint(col_str)
-        return col_str
 
     def insert_values(self, table, values: tuple, columns: tuple = ""):
         """
@@ -51,6 +42,9 @@ class DataBase(DataGetter):
         """
         try:
             if columns != "":
+                if len(columns) != len(values):
+                    dprint(f" len{columns} != len{values}")
+                    return False
                 columns = f"{columns} "
             command = f"INSERT INTO {table} {columns}VALUES {values};"
             dprint(command)
@@ -60,10 +54,10 @@ class DataBase(DataGetter):
             dprint(err)
         return False
 
-    def set_columns_value(self, table, *args):
+    def set_columns_value(self, table, *args: tuple):
         try:
             for item in args:
-                column, value = item
+                column, value = item[0], item[1]
                 self.cur.execute(f"UPDATE {table} SET {column} = '{value}';")
                 dprint(f"UPDATE {table} SET {column} = '{value}';")
             return True
@@ -73,10 +67,31 @@ class DataBase(DataGetter):
 
     def column_operate(self, table, value, default="NULL", operation="ADD"):
         try:
-            command = f"ALTER TABLE {table} {operation} {self.convert_to_sql_str(value)}"
+            if type(value) is not str:
+                value = str(value)[1:-1]
+            command = f"ALTER TABLE {table} {operation} {value}"
             if operation == "ADD":
                 command += f", default {default}"
             command += ";"
+
+            dprint(command)
+            self.cur.execute(command)
+            return True
+        except sqlite3.OperationalError as err:
+            dprint(err)
+        return False
+
+    def clear_table(self, table, condition=None, delete_table=False):
+        try:
+            if delete_table:
+                command = f"DROP TABLE {table};"
+            else:
+                command = f"DELETE FROM {table}"
+                if condition is not None:
+                    command += f" WHERE {condition}"
+                command += ";"
+
+            dprint(command)
             self.cur.execute(command)
             return True
         except sqlite3.OperationalError as err:
@@ -85,7 +100,9 @@ class DataBase(DataGetter):
 
     def create_table(self, table, columns):
         try:
-            self.cur.execute(f"CREATE TABLE {table} ({self.convert_to_sql_str(columns)});")
+            if type(columns) is not str:
+                columns = str(columns)[1:-1]
+            self.cur.execute(f"CREATE TABLE {table} ({columns});")
             return True
         except sqlite3.OperationalError as err:
             dprint(err)
@@ -107,6 +124,8 @@ if __name__ == '__main__':
     # ])
     # data_base.add_columns(tbl, ["annotations TEXT"])
     data_base.insert_values(tbl, (4.1023, 3, "Markus", "comment"), ("time", "turn", "username", "annotations"))
-    data_base.set_columns_value(tbl, ("annotations", "No annotation added"))
+    data_base.insert_values(tbl, (1, "Krzysztof", 9.1203, "do not delete"))
+    data_base.clear_table(tbl, "annotations!='do not delete'")
+    data_base.column_operate(tbl, "annotations", operation="DROP COLUMN")
 
     data_base.close()
