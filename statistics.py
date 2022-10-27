@@ -6,6 +6,7 @@ from dev_tools import dprint, dev
 class DataGetter:
     def __init__(self):
         self.timer = 0
+        self.times_sum = 0
         self.log_list = []
 
     # timer features
@@ -13,18 +14,18 @@ class DataGetter:
         self.timer = time.time()
         return self.timer
 
-    def timestamp(self, turn, symbol, timer_reset=True):
-        t = time.time() - self.timer
-        self.log_list.append((turn, symbol, t))
+    def timestamp(self, *args):
+        t = time.time() - self.timer - self.times_sum
+        t = round(t, 4)
+        self.log_list.append(args + (t,))
+        self.times_sum += t
 
-        dprint(f"{turn} | {symbol} | {t}")
+        dprint(f"{self.log_list[-1]}")
         if dev:
             for item in self.log_list:
                 dprint(item)
 
-        if timer_reset:
-            self.set_timer()
-        return turn, symbol, t
+        return self.log_list[-1]
 
 
 class DataBase(DataGetter):
@@ -65,23 +66,42 @@ class DataBase(DataGetter):
             dprint(err)
         return False
 
-    def column_operate(self, table, value, default="NULL", operation="ADD"):
+    def column_operate(self, table, value, operation="add", default="NULL"):
         """
         ALTER TABLE <table> ADD <value>, default <default>;\n
+        ALTER TABLE <table> RENAME COLUMN <value[0]> TO <value[1]>;\n
         ALTER TABLE <table> <operation> <value>;\n
+        \noperation:
+        "add": "ADD",\n
+        "del": "DROP COLUMN",\n
+        "ren": "RENAME COLUMN",\n
+        "dtp": "ALTER COLUMN"\n
         :param table:
         :param value:
         :param default:
         :param operation:
         :return:
         """
+
+        column_operations = {"add": "ADD",
+                             "del": "DROP COLUMN",
+                             "ren": "RENAME COLUMN",
+                             "dtp": "ALTER COLUMN"}
+
+        if operation in column_operations.keys():
+            operation = column_operations[operation]
+        elif operation not in column_operations.keys():
+            dprint("incorrect operation name")
+            return False
+
         try:
             if type(value) is not str:
                 value = str(value)[1:-1]
-            command = f"ALTER TABLE {table} {operation} {value}"
-            if operation == "ADD":
-                command += f", default {default}"
-            command += ";"
+            if operation == column_operations["add"]:
+                value = f"{value} default {default}"
+            elif operation == column_operations["ren"]:
+                value = f"{value[0]} TO {value[1]}"
+            command = f"ALTER TABLE {table} {operation} {value};"
 
             dprint(command)
             self.cur.execute(command)
@@ -132,7 +152,7 @@ class DataBase(DataGetter):
 
 if __name__ == '__main__':
     data_base = DataBase()
-    data_base.open("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/tic-tac-toe-plus.db")
+    data_base.open("D:/_Programming/python/TicTacToe+/tic-tac-toe-plus.db")
     tbl = "Input_times"
     # data_base.create_table(tbl, [
     #     "turn INTEGER",
@@ -140,8 +160,7 @@ if __name__ == '__main__':
     #     "time REAL"
     # ])
     # data_base.add_columns(tbl, ["annotations TEXT"])
-    data_base.column_operate(tbl, "username TO symbol", operation="RENAME COLUMN")
-    data_base.insert_values(tbl, (1, "Krzysztof", 9.1203))
-    data_base.clear_table(tbl)
+    data_base.column_operate(tbl, "tile TEXT")
+    data_base.column_operate(tbl, "time REAL")
 
     data_base.close()

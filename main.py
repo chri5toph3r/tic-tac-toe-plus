@@ -39,6 +39,8 @@ def main():
     if not sectors_obj[sector_col, sector_row].write_symbol(tile_col, tile_row):
         return return_status
 
+    data_base.timestamp(board.board_turn + 1, board.turn_symbol, f"{tile_col}:{tile_row}")
+
     # czy ktoś wygrał sektor?
     sector_status = sectors_obj[sector_col, sector_row].check_winner()  # 3 możliwe wartości zwrotne
     if sector_status:
@@ -49,8 +51,6 @@ def main():
             board.write_symbol(sector_col, sector_row, 'draw')
         # czy ktoś wygrał grę?
         return_status = board.check_winner()
-
-    data_base.timestamp(board.board_turn + 1, board.turn_symbol)
 
     cursor_change = False
     next_sector = None
@@ -66,7 +66,6 @@ if __name__ == '__main__':
     flag = True
     ctrl = 0
     data_base.set_timer()
-    data_base.open("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/tic-tac-toe-plus.db")
     while flag:
         for event in pygame.event.get():
             flag = event.type != pygame.QUIT
@@ -79,4 +78,10 @@ if __name__ == '__main__':
                 elif ctrl == -1:
                     fin_msg = 'draw'
                     window.fin_msg(fin_msg)
+
+    data_base.open("D:/_Programming/python/TicTacToe+/tic-tac-toe-plus.db")
+    table = "Input_times"
+    data_base.clear_table(table)
+    for line in data_base.log_list:
+        data_base.insert_values(table, line)
     data_base.close()
