@@ -1,3 +1,4 @@
+from dev_tools import dprint
 import pygame
 
 pygame.init()
@@ -187,6 +188,7 @@ class Pen:
         pygame.display.flip()
 
     def refresh(self, written_symbols_dic, next_sector, msg=None, draw_board=None, change_cur=False):
+
 
         if change_cur:
             self.cursor_index += 1

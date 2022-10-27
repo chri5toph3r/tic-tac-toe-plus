@@ -1,3 +1,6 @@
+from dev_tools import dprint
+
+
 class Sector:
     symbols = ['o', 'x', '-']
     turn_symbol = symbols[0]
@@ -22,8 +25,8 @@ class Sector:
                     symbol = Sector.symbols_written[self.id][(col, row)]
                 else:
                     symbol = Sector.blank
-                # print(symbol, end=' ')
-            # print()
+                dprint(symbol, end=' ')
+            dprint()
         return True
 
     def write_symbol(self, col, row, symbol=None):

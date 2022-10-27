@@ -1,5 +1,7 @@
 from TicTacToePlus import *
 import WinMg
+import statistics
+from dev_tools import dprint
 import pygame
 
 
@@ -8,6 +10,8 @@ window.draw_default_board()
 
 board = Board()
 sectors_obj = {}
+
+stats = statistics.DataGetter()
 
 for col in range(3):
     for row in range(3):
@@ -46,6 +50,8 @@ def main():
         # czy ktoś wygrał grę?
         return_status = board.check_winner()
 
+    stats.timestamp(board.board_turn+1, board.turn_symbol)
+
     cursor_change = False
     next_sector = None
     if return_status == 0:
@@ -59,6 +65,7 @@ def main():
 if __name__ == '__main__':
     flag = True
     ctrl = 0
+    stats.set_timer()
 
     while flag:
         for event in pygame.event.get():
