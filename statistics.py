@@ -30,8 +30,8 @@ class DataGetter:
 class DataBase(DataGetter):
     def __init__(self):
         super().__init__()
-        self.conn = sqlite3.connect('tic-tac-toe-plus.db')
-        self.cur = self.conn.cursor()
+        self.conn = None
+        self.cur = None
 
     def insert_values(self, table, values: tuple, columns: tuple = ""):
         """
@@ -66,6 +66,15 @@ class DataBase(DataGetter):
         return False
 
     def column_operate(self, table, value, default="NULL", operation="ADD"):
+        """
+        ALTER TABLE <table> ADD <value>, default <default>;\n
+        ALTER TABLE <table> <operation> <value>;\n
+        :param table:
+        :param value:
+        :param default:
+        :param operation:
+        :return:
+        """
         try:
             if type(value) is not str:
                 value = str(value)[1:-1]
@@ -108,14 +117,22 @@ class DataBase(DataGetter):
             dprint(err)
         return False
 
+    def open(self, database):
+        self.conn = sqlite3.connect(database)
+        self.cur = self.conn.cursor()
+        dprint("database opened")
+        return True
+
     def close(self):
         self.conn.commit()
         self.conn.close()
+        dprint("database closed")
         return True
 
 
 if __name__ == '__main__':
     data_base = DataBase()
+    data_base.open("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/tic-tac-toe-plus.db")
     tbl = "Input_times"
     # data_base.create_table(tbl, [
     #     "turn INTEGER",
@@ -123,9 +140,8 @@ if __name__ == '__main__':
     #     "time REAL"
     # ])
     # data_base.add_columns(tbl, ["annotations TEXT"])
-    data_base.insert_values(tbl, (4.1023, 3, "Markus", "comment"), ("time", "turn", "username", "annotations"))
-    data_base.insert_values(tbl, (1, "Krzysztof", 9.1203, "do not delete"))
-    data_base.clear_table(tbl, "annotations!='do not delete'")
-    data_base.column_operate(tbl, "annotations", operation="DROP COLUMN")
+    data_base.column_operate(tbl, "username TO symbol", operation="RENAME COLUMN")
+    data_base.insert_values(tbl, (1, "Krzysztof", 9.1203))
+    data_base.clear_table(tbl)
 
     data_base.close()

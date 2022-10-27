@@ -66,7 +66,7 @@ if __name__ == '__main__':
     flag = True
     ctrl = 0
     data_base.set_timer()
-
+    data_base.open("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/tic-tac-toe-plus.db")
     while flag:
         for event in pygame.event.get():
             flag = event.type != pygame.QUIT
@@ -79,3 +79,4 @@ if __name__ == '__main__':
                 elif ctrl == -1:
                     fin_msg = 'draw'
                     window.fin_msg(fin_msg)
+    data_base.close()
