@@ -25,7 +25,7 @@ class DataGetter:
             for item in self.log_list:
                 dprint(item)
 
-        return self.log_list[-1]
+        return t
 
 
 class DataBase(DataGetter):
@@ -131,6 +131,7 @@ class DataBase(DataGetter):
         try:
             if type(columns) is not str:
                 columns = str(columns)[1:-1]
+            dprint(f"CREATE TABLE {table} ({columns});")
             self.cur.execute(f"CREATE TABLE {table} ({columns});")
             return True
         except sqlite3.OperationalError as err:
@@ -152,15 +153,11 @@ class DataBase(DataGetter):
 
 if __name__ == '__main__':
     data_base = DataBase()
-    data_base.open("D:/_Programming/python/TicTacToe+/tic-tac-toe-plus.db")
-    tbl = "Input_times"
-    # data_base.create_table(tbl, [
-    #     "turn INTEGER",
-    #     "username TEXT",
-    #     "time REAL"
-    # ])
+    data_base.open("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/tic-tac-toe-plus.db")
+    tbl = "sectors_input"
+    data_base.clear_table(tbl, delete_table=True)
+    data_base.create_table(tbl, "turn INTEGER, username TEXT, sector TEXT, time REAL")
+
     # data_base.add_columns(tbl, ["annotations TEXT"])
-    data_base.column_operate(tbl, "tile TEXT")
-    data_base.column_operate(tbl, "time REAL")
 
     data_base.close()

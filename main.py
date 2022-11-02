@@ -4,7 +4,6 @@ import statistics
 from dev_tools import dprint
 import pygame
 
-
 window = WinMg.Pen()
 window.draw_default_board()
 
@@ -12,6 +11,7 @@ board = Board()
 sectors_obj = {}
 
 data_base = statistics.DataBase()
+sectors_times = statistics.DataBase()
 
 for col in range(3):
     for row in range(3):
@@ -39,16 +39,22 @@ def main():
     if not sectors_obj[sector_col, sector_row].write_symbol(tile_col, tile_row):
         return return_status
 
-    data_base.timestamp(board.board_turn + 1, board.turn_symbol, f"{tile_col}:{tile_row}")
+    turn_time = data_base.timestamp(board.board_turn + 1, board.turn_symbol, f"{tile_col}:{tile_row}")
+    data_base.insert_values(tiles_table, (board.board_turn + 1, board.turn_symbol, f"{tile_col}:{tile_row}", turn_time))
 
     # czy ktoś wygrał sektor?
     sector_status = sectors_obj[sector_col, sector_row].check_winner()  # 3 możliwe wartości zwrotne
     if sector_status:
         # jeśli tak, narysuj symbol, lub wpisz 'draw'
         if sector_status == 1:
+            temp_symbol = board.turn_symbol
             board.write_symbol(sector_col, sector_row)
         else:
+            temp_symbol = 'draw'
             board.write_symbol(sector_col, sector_row, 'draw')
+        data_base.insert_values(sectors_table,
+                                (board.board_turn + 1, temp_symbol, f"{sector_col}:{sector_row}", turn_time))
+
         # czy ktoś wygrał grę?
         return_status = board.check_winner()
 
@@ -66,6 +72,15 @@ if __name__ == '__main__':
     flag = True
     ctrl = 0
     data_base.set_timer()
+
+    data_base.open("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/tic-tac-toe-plus.db")
+
+    tiles_table = "tiles_input"
+    sectors_table = "sectors_input"
+
+    data_base.clear_table(tiles_table)
+    data_base.clear_table(sectors_table)
+
     while flag:
         for event in pygame.event.get():
             flag = event.type != pygame.QUIT
@@ -79,9 +94,4 @@ if __name__ == '__main__':
                     fin_msg = 'draw'
                     window.fin_msg(fin_msg)
 
-    data_base.open("D:/_Programming/python/TicTacToe+/tic-tac-toe-plus.db")
-    table = "Input_times"
-    data_base.clear_table(table)
-    for line in data_base.log_list:
-        data_base.insert_values(table, line)
     data_base.close()
