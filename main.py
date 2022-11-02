@@ -73,7 +73,7 @@ if __name__ == '__main__':
     ctrl = 0
     data_base.set_timer()
 
-    data_base.open("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/tic-tac-toe-plus.db")
+    data_base.open("D:/_Programming/python/TicTacToe+/tic-tac-toe-plus.db")
 
     tiles_table = "tiles_input"
     sectors_table = "sectors_input"

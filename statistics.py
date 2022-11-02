@@ -55,7 +55,7 @@ class DataBase(DataGetter):
             dprint(err)
         return False
 
-    def set_columns_value(self, table, *args: tuple):
+    def set_columns_value(self, table, *args: tuple[str, str]):
         try:
             for item in args:
                 column, value = item[0], item[1]
@@ -66,51 +66,67 @@ class DataBase(DataGetter):
             dprint(err)
         return False
 
-    def column_operate(self, table, value, operation="add", default="NULL"):
+    def add_table(self):
         """
         ALTER TABLE <table> ADD <value>, default <default>;\n
-        ALTER TABLE <table> RENAME COLUMN <value[0]> TO <value[1]>;\n
-        ALTER TABLE <table> <operation> <value>;\n
-        \noperation:
-        "add": "ADD",\n
-        "del": "DROP COLUMN",\n
-        "ren": "RENAME COLUMN",\n
-        "dtp": "ALTER COLUMN"\n
-        :param table:
-        :param value:
-        :param default:
-        :param operation:
+
         :return:
         """
+        value = f"{value} default {default}"
 
-        column_operations = {"add": "ADD",
-                             "del": "DROP COLUMN",
-                             "ren": "RENAME COLUMN",
-                             "dtp": "ALTER COLUMN"}
+    def rename_table(self):
+        """
+        ALTER TABLE <table> RENAME COLUMN <value[0]> TO <value[1]>;\n
 
-        if operation in column_operations.keys():
-            operation = column_operations[operation]
-        elif operation not in column_operations.keys():
-            dprint("incorrect operation name")
-            return False
+        :return:
+        """
+        value = f"{value[0]} TO {value[1]}"
+
+    def delete_column(self, table, column):
+        """
+        ALTER TABLE <table> DROP COLUMN <column>;\n
+
+        :param column:
+        :param table:
+        :return: None if error occurred, command otherwise
+        """
 
         try:
-            if type(value) is not str:
-                value = str(value)[1:-1]
-            if operation == column_operations["add"]:
-                value = f"{value} default {default}"
-            elif operation == column_operations["ren"]:
-                value = f"{value[0]} TO {value[1]}"
-            command = f"ALTER TABLE {table} {operation} {value};"
-
+            command = f"ALTER TABLE {table} DROP COLUMN {column};"
             dprint(command)
             self.cur.execute(command)
-            return True
+            return command
         except sqlite3.OperationalError as err:
             dprint(err)
-        return False
+        return None
+
+    def change_column_data_type(self, table, col_data):
+        """
+        Use this method to change targeted column's data type.\n
+        ALTER TABLE {table} ALTER COLUMN {col_data};
+
+        :param table: table the operation should be performed on
+        :param col_data: column and desired data type after a space
+        :return: None if error occurred, command otherwise
+        """
+        try:
+            command = f"ALTER TABLE {table} ALTER COLUMN {col_data};"
+            dprint(command)
+            self.cur.execute(command)
+            return command
+        except sqlite3.OperationalError as err:
+            dprint(err)
+        return None
 
     def clear_table(self, table, condition=None, delete_table=False):
+        """
+        Clear whole table, values by condition or delete whole table.
+
+        :param table: table the operation should be performed on
+        :param condition: if given, adds "WHERE {condition}" to the command (default None)
+        :param delete_table: if True, deletes targeted table (default False)
+        :return: None if error occurred, command otherwise
+        """
         try:
             if delete_table:
                 command = f"DROP TABLE {table};"
@@ -122,21 +138,34 @@ class DataBase(DataGetter):
 
             dprint(command)
             self.cur.execute(command)
-            return True
+            return command
         except sqlite3.OperationalError as err:
             dprint(err)
-        return False
+        return None
 
-    def create_table(self, table, columns):
+    def create_tables(self, **kwargs: list[str]):
+        """
+        Examples of passing keys:\n
+        create_tables("table1"=["col1 INTEGER", "col2 TEXT"])\n
+        or\n
+        table = "table1"\n
+        create_tables(**{table: ["col1 INTEGER", "col2 TEXT"])
+
+        :param kwargs: table name as a key, columns data in a list[str]
+        :return: True if successfully created, False otherwise (doesn't return command bcs uses for loop)
+        """
         try:
-            if type(columns) is not str:
-                columns = str(columns)[1:-1]
-            dprint(f"CREATE TABLE {table} ({columns});")
-            self.cur.execute(f"CREATE TABLE {table} ({columns});")
+            for table in kwargs.keys():
+                columns = " "
+                columns = columns.join(kwargs[table])
+
+                command = f"CREATE TABLE {table} ({columns});"
+                dprint(command)
+                self.cur.execute(command)
             return True
         except sqlite3.OperationalError as err:
             dprint(err)
-        return False
+        return None
 
     def open(self, database):
         self.conn = sqlite3.connect(database)
@@ -153,10 +182,10 @@ class DataBase(DataGetter):
 
 if __name__ == '__main__':
     data_base = DataBase()
-    data_base.open("C:/Users/Krzysztof/PycharmProjects/tic-tac-toe-plus/tic-tac-toe-plus.db")
-    tbl = "sectors_input"
-    data_base.clear_table(tbl, delete_table=True)
-    data_base.create_table(tbl, "turn INTEGER, username TEXT, sector TEXT, time REAL")
+    data_base.open("D:/_Programming/python/TicTacToe+/tic-tac-toe-plus.db")
+    tbl = "user"
+    # data_base.clear_table(tbl, delete_table=True)
+    data_base.create_tables(**{tbl: ["turn INTEGER", "username TEXT", "sector TEXT", "time REAL"]})
 
     # data_base.add_columns(tbl, ["annotations TEXT"])
 
