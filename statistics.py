@@ -100,6 +100,9 @@ class DBMSTranslator(Timer):
         """
         ALTER TABLE <table> ADD <column>, default <default>;\n
 
+        :param table: table the operation should be performed on
+        :param column: name of the column to add
+        :param default: default value of the column (optional)
         :return:True if successfully created, False otherwise
         """
         try:
@@ -117,6 +120,9 @@ class DBMSTranslator(Timer):
         """
         ALTER TABLE <table> RENAME COLUMN <old_col_name> TO <new_col_name>;\n
 
+        :param table: table the operation should be performed on
+        :param old_col_name: current table name
+        :param new_col_name: new table name
         :return: True if successfully created, False otherwise
         """
         try:
@@ -149,8 +155,8 @@ class DBMSTranslator(Timer):
         """
         ALTER TABLE <table> DROP COLUMN <column>;\n
 
-        :param column:
-        :param table:
+        :param table: table the operation should be performed on
+        :param column: column to delete
         :return: True if successfully created, False otherwise
         """
 
@@ -174,7 +180,7 @@ class DBMSTranslator(Timer):
         try:
             if columns != "":
                 if len(columns) != len(values):
-                    dprint(f" len{columns} != len{values}")
+                    dprint(f"len{columns} != len{values}")
                     return False
                 columns = f"{columns} "
             command = f"INSERT INTO {table} {columns}VALUES {values};"
@@ -185,16 +191,15 @@ class DBMSTranslator(Timer):
             dprint(err)
         return False
 
-    def update_columns_values(self, table, *args: tuple[str, str]):
+    def update_columns_values(self, **kwargs: tuple[str, str]):
         """
 
-        :param table:
-        :param args:
+        :param kwargs: table name as a key, columns data in a list[str]
         :return: True if successfully created, False otherwise
         """
         try:
-            for item in args:
-                column, value = item[0], item[1]
+            for table in kwargs:
+                column, value = kwargs[table]
                 self.cur.execute(f"UPDATE {table} SET {column} = '{value}';")
                 dprint(f"UPDATE {table} SET {column} = '{value}';")
             return True
