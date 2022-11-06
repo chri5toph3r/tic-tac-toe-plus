@@ -10,8 +10,8 @@ window.draw_default_board()
 board = Board()
 sectors_obj = {}
 
-data_base = statistics.DataBase()
-sectors_times = statistics.DataBase()
+data_base = statistics.Statistics()
+sectors_times = statistics.Statistics()
 
 for col in range(3):
     for row in range(3):
