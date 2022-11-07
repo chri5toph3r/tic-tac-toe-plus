@@ -23,7 +23,7 @@ class DBMSTranslator:
     # manipulate tables
     def create_tables(self, **kwargs: list[str]):
         """
-        Examples of passing keys:\n
+        CREATE TABLE {table} ({columns});\n
         create_tables("table1"=["col1 INTEGER", "col2 TEXT"])\n
         or\n
         table = "table1"\n
@@ -45,26 +45,30 @@ class DBMSTranslator:
             dprint(err)
         return None
 
-    def clear_table(self, table, condition=None, delete_table=False):
+    def clear_table(self, **kwargs):
         """
-        Clear whole table, values by condition or delete whole table.
+        DELETE FROM {table}
+        WHERE {value}
+        DROP TABLE {table};
 
-        :param table: table the operation should be performed on
-        :param condition: if given, adds "WHERE {condition}" to the command (default None)
-        :param delete_table: if True, deletes targeted table (default False)
+
+
         :return: True if successfully created, False otherwise
         """
         try:
-            if delete_table:
-                command = f"DROP TABLE {table};"
-            else:
-                command = f"DELETE FROM {table}"
-                if condition is not None:
-                    command += f" WHERE {condition}"
-                command += ";"
+            for table, value in kwargs.items():
+                if type(value) is str or None:
+                    command = f"DELETE FROM {table}"
+                    if value is not None:
+                        command += f" WHERE {value}"
+                    command += ";"
+                if value is True:
+                    command = f"DROP TABLE {table};"
+                else:
+                    continue
 
-            dprint(command)
-            self.cur.execute(command)
+                dprint(command)
+                self.cur.execute(command)
             return True
         except sqlite3.OperationalError as err:
             dprint(err)
@@ -82,7 +86,7 @@ class DBMSTranslator:
         """
         try:
             if default != "":
-                default = f"default {default}"
+                default = f" default {default}"
             command = f"ALTER TABLE {table} ADD {column}{default};"
             dprint(command)
             self.cur.execute(command)
@@ -91,54 +95,56 @@ class DBMSTranslator:
             dprint(err)
         return False
 
-    def rename_column(self, table, old_col_name, new_col_name):
+    def rename_columns(self, **kwargs: dict[str: str]):
         """
         ALTER TABLE <table> RENAME COLUMN <old_col_name> TO <new_col_name>;\n
+        table={"old_col_name": "new_col_name"}
 
-        :param table: table the operation should be performed on
-        :param old_col_name: current table name
-        :param new_col_name: new table name
         :return: True if successfully created, False otherwise
         """
         try:
-            command = f"ALTER TABLE {table} RENAME COLUMN {old_col_name} TO {new_col_name};"
-            dprint(command)
-            self.cur.execute(command)
+            for table, columns in kwargs.items():
+                for old_col_name, new_col_name in columns:
+                    command = f"ALTER TABLE {table} RENAME COLUMN {old_col_name} TO {new_col_name};"
+                    dprint(command)
+                    self.cur.execute(command)
             return True
         except sqlite3.OperationalError as err:
             dprint(err)
         return False
 
-    def change_column_data_type(self, table, col_data):
+    def change_column_data_type(self, **kwargs: list[str]):
         """
-        ALTER TABLE {table} ALTER COLUMN {col_data};
+        ALTER TABLE {table} ALTER COLUMN {col_data};\n
+        table=["col_name DATA_TYPE"]
 
-        :param table: table the operation should be performed on
-        :param col_data: column and desired data type after a space
         :return: True if successfully created, False otherwise
         """
         try:
-            command = f"ALTER TABLE {table} ALTER COLUMN {col_data};"
-            dprint(command)
-            self.cur.execute(command)
+            for table, cols_data in kwargs.items():
+                for col_datum in cols_data:
+                    command = f"ALTER TABLE {table} ALTER COLUMN {col_datum};"
+                    dprint(command)
+                    self.cur.execute(command)
             return True
         except sqlite3.OperationalError as err:
             dprint(err)
         return False
 
-    def delete_column(self, table, column):
+    def delete_columns(self, **kwargs: list[str]):
         """
         ALTER TABLE <table> DROP COLUMN <column>;\n
+        table=[columns]\n
 
-        :param table: table the operation should be performed on
-        :param column: column to delete
         :return: True if successfully created, False otherwise
         """
 
         try:
-            command = f"ALTER TABLE {table} DROP COLUMN {column};"
-            dprint(command)
-            self.cur.execute(command)
+            for table, columns in kwargs.items():
+                for column in columns:
+                    command = f"ALTER TABLE {table} DROP COLUMN {column};"
+                    dprint(command)
+                    self.cur.execute(command)
             return True
         except sqlite3.OperationalError as err:
             dprint(err)
@@ -147,11 +153,13 @@ class DBMSTranslator:
     # manipulate values
     def insert_values(self, **kwargs):
         """
+        INSERT INTO {table} {columns}VALUES({values});\n
         table=[values]\n
         or\n
         table={columns: values}\n
         column names syntax: "column_name"\n
         values syntax: "'text_value'", "
+
         :return: True if successfully created, False otherwise
         """
         try:
@@ -195,11 +203,8 @@ if __name__ == '__main__':
     data_base = DBMSTranslator()
     data_base.open("D:/_Programming/python/TicTacToe+/tic-tac-toe-plus.db")
 
-    data_base.insert_values(user={
-        "username": "'Chris'",
-        "first_name": "'Krzysztof'",
-        "last_name": "'Kulak'",
-        "password": "'qwerty'",
-        "active": "1"})
+    flag = True
+    while flag:
+        exec(input("> "))
 
     data_base.close()
