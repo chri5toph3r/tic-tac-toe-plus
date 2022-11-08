@@ -75,21 +75,22 @@ class DBMSTranslator:
         return False
 
     # manipulate columns
-    def add_column(self, table, column, default=""):
+    def add_columns(self, **kwargs):
         """
         ALTER TABLE <table> ADD <column>, default <default>;\n
+        table=(["col_name DATA_TYPE"], {"col_name DATA_TYPE": "default_value"})
 
-        :param table: table the operation should be performed on
-        :param column: name of the column to add
-        :param default: default value of the column (optional)
         :return:True if successfully created, False otherwise
         """
         try:
-            if default != "":
-                default = f" default {default}"
-            command = f"ALTER TABLE {table} ADD {column}{default};"
-            dprint(command)
-            self.cur.execute(command)
+            for table, value in kwargs.items():
+                for column in value:
+                    default = ""
+                    if type(value) is dict:
+                        default = f" default {value[column]}"
+                    command = f"ALTER TABLE {table} ADD {column}{default};"
+                    dprint(command)
+                    self.cur.execute(command)
             return True
         except sqlite3.OperationalError as err:
             dprint(err)
@@ -113,7 +114,7 @@ class DBMSTranslator:
             dprint(err)
         return False
 
-    def change_column_data_type(self, **kwargs: list[str]):
+    def change_columns_data_type(self, **kwargs: list[str]):
         """
         ALTER TABLE {table} ALTER COLUMN {col_data};\n
         table=["col_name DATA_TYPE"]
@@ -201,7 +202,7 @@ class DBMSTranslator:
 
 if __name__ == '__main__':
     data_base = DBMSTranslator()
-    data_base.open("D:/_Programming/python/TicTacToe+/tic-tac-toe-plus.db")
+    data_base.open("tic-tac-toe-plus.db")
 
     flag = True
     while flag:
