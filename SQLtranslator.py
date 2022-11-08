@@ -23,7 +23,7 @@ class DBMSTranslator:
     # manipulate tables
     def create_tables(self, **kwargs: list[str]):
         """
-        CREATE TABLE {table} ({columns});\n
+        > CREATE TABLE {table} ({columns});\n
         create_tables("table1"=["col1 INTEGER", "col2 TEXT"])\n
         or\n
         table = "table1"\n
@@ -47,25 +47,23 @@ class DBMSTranslator:
 
     def clear_table(self, **kwargs):
         """
-        DELETE FROM {table}
-        WHERE {value}
-        DROP TABLE {table};
-
-
+        if not value but is not None, column is cleared\n
+        > DELETE FROM {table}\n
+        if value is given and is not None, condition is added\n
+        > WHERE {value} (optional)\n
+        if value is None, the column is deleted:\n
+        > DROP TABLE {table}
 
         :return: True if successfully created, False otherwise
         """
         try:
             for table, value in kwargs.items():
-                if type(value) is str or None:
-                    command = f"DELETE FROM {table}"
-                    if value is not None:
-                        command += f" WHERE {value}"
-                    command += ";"
-                if value is True:
-                    command = f"DROP TABLE {table};"
-                else:
-                    continue
+                command = f"DELETE FROM {table}"
+                if value:
+                    command += f" WHERE {value}"
+                elif value is None:
+                    command = f"DROP TABLE {table}"
+                command += ";"
 
                 dprint(command)
                 self.cur.execute(command)
@@ -77,7 +75,7 @@ class DBMSTranslator:
     # manipulate columns
     def add_columns(self, **kwargs):
         """
-        ALTER TABLE <table> ADD <column>, default <default>;\n
+        > ALTER TABLE <table> ADD <column>, default <default>;\n
         table=(["col_name DATA_TYPE"], {"col_name DATA_TYPE": "default_value"})
 
         :return:True if successfully created, False otherwise
@@ -98,7 +96,7 @@ class DBMSTranslator:
 
     def rename_columns(self, **kwargs: dict[str: str]):
         """
-        ALTER TABLE <table> RENAME COLUMN <old_col_name> TO <new_col_name>;\n
+        > ALTER TABLE <table> RENAME COLUMN <old_col_name> TO <new_col_name>;\n
         table={"old_col_name": "new_col_name"}
 
         :return: True if successfully created, False otherwise
@@ -116,7 +114,7 @@ class DBMSTranslator:
 
     def change_columns_data_type(self, **kwargs: list[str]):
         """
-        ALTER TABLE {table} ALTER COLUMN {col_data};\n
+        > ALTER TABLE {table} ALTER COLUMN {col_data};\n
         table=["col_name DATA_TYPE"]
 
         :return: True if successfully created, False otherwise
@@ -134,7 +132,7 @@ class DBMSTranslator:
 
     def delete_columns(self, **kwargs: list[str]):
         """
-        ALTER TABLE <table> DROP COLUMN <column>;\n
+        > ALTER TABLE <table> DROP COLUMN <column>;\n
         table=[columns]\n
 
         :return: True if successfully created, False otherwise
@@ -154,7 +152,7 @@ class DBMSTranslator:
     # manipulate values
     def insert_values(self, **kwargs):
         """
-        INSERT INTO {table} {columns}VALUES({values});\n
+        > INSERT INTO {table} {columns}VALUES({values});\n
         table=[values]\n
         or\n
         table={columns: values}\n
@@ -185,6 +183,7 @@ class DBMSTranslator:
 
     def update_columns_values(self, **kwargs: tuple[str, str]):
         """
+        > UPDATE {table} SET {column} = '{value}';
 
         :param kwargs: table name as a key, columns data in a list[str]
         :return: True if successfully created, False otherwise
@@ -192,8 +191,8 @@ class DBMSTranslator:
         try:
             for table, data in kwargs.items():
                 column, value = data
-                self.cur.execute(f"UPDATE {table} SET {column} = '{value}';")
                 dprint(f"UPDATE {table} SET {column} = '{value}';")
+                self.cur.execute(f"UPDATE {table} SET {column} = '{value}';")
             return True
         except sqlite3.OperationalError as err:
             dprint(err)

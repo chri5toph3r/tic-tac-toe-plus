@@ -73,13 +73,13 @@ if __name__ == '__main__':
     ctrl = 0
     data_base.set_timer()
 
-    data_base.open("D:/_Programming/python/TicTacToe+/tic-tac-toe-plus.db")
+    data_base.open("tic-tac-toe-plus.db")
 
     tiles_table = "tiles_input"
     sectors_table = "sectors_input"
 
-    data_base.clear_table(tiles_table)
-    data_base.clear_table(sectors_table)
+    # data_base.clear_table(tiles_table)
+    # data_base.clear_table(sectors_table)
 
     while flag:
         for event in pygame.event.get():
