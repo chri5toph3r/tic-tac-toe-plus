@@ -202,14 +202,15 @@ class DBMSTranslator:
 
     # read data, print if dev
     def get_tables_names(self):
-        try:
-            command = f"SELECT name FROM {self.database} WHERE type='table'"
-            self.cur.execute(command)
-            dprint(self.cur.fetchall())
-            return True
-        except sqlite3.OperationalError as err:
-            dprint(err)
-        return False
+        if dev:
+            try:
+                command = f"SELECT name FROM sqlite_master WHERE type='table';"
+                self.cur.execute(command)
+                for table in self.cur.fetchall():
+                    dprint(table[0])
+            except sqlite3.OperationalError as err:
+                dprint(err)
+        return dev
 
     def get_columns_names(self, *args):
         if dev:
