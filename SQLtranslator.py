@@ -17,7 +17,7 @@ class DBMSTranslator:
         self.methods_list = []
 
     def get_methods(self):
-        self.methods_list = [attrib for attrib in dir(self)
+        self.methods_list = [attrib+"()" for attrib in dir(self)
                              if callable(getattr(self, attrib)) and
                              not attrib.startswith("__") and
                              attrib not in self.hidden_methods]
@@ -228,7 +228,7 @@ class DBMSTranslator:
 if __name__ == '__main__':
     data_base = DBMSTranslator()
     data_base.open("tic-tac-toe-plus.db")
-    methods_menu_list = [f"{index}. {method}()" for index, method in enumerate(data_base.get_methods(), 1)]
+    methods_menu_list = [f"{index}. {method}" for index, method in enumerate(data_base.get_methods(), 1)]
 
     symbols = {
         "left": "[",
