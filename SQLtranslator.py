@@ -227,7 +227,7 @@ class DBMSTranslator:
 if __name__ == '__main__':
     data_base = DBMSTranslator()
     data_base.open("tic-tac-toe-plus.db")
-    methods_list = [f"{index}. {method}()" for index, method in enumerate(data_base.get_methods(), 1)]
+    methods_menu_list = [f"{index}. {method}()" for index, method in enumerate(data_base.get_methods(), 1)]
 
     symbols = {
         "left": "[",
@@ -264,12 +264,12 @@ if __name__ == '__main__':
 
         if help_flag:
             help_menu_list = [help_menu[option][1].format(help_menu[option][0]) for option in help_menu]
-            max_width = max(len(indexed_method) for indexed_method in methods_list + help_menu_list)
+            max_width = max(len(indexed_method) for indexed_method in methods_menu_list + help_menu_list)
         else:
-            max_width = max(len(indexed_method) for indexed_method in methods_list)
+            max_width = max(len(indexed_method) for indexed_method in methods_menu_list)
 
         print(start_space+menu_header.format(menu_info.center(max_width - 2, symbols['sep'])))
-        for indexed_method in methods_list:
+        for indexed_method in methods_menu_list:
             print(f"{start_space}{indexed_method}")
         if help_flag:
             print(start_space+menu_header.format(help_info.center(max_width - 2, symbols['sep'])))
@@ -277,7 +277,7 @@ if __name__ == '__main__':
                 print(f"{start_space}{help_menu[option][1].format(help_menu[option][0])}")
             help_flag = False
         else:
-            print(f"{start_space}{len(methods_list) + 1}. {help_menu['help'][1].format(help_menu['help'][0])}")
+            print(f"{start_space}{len(methods_menu_list) + 1}. {help_menu['help'][1].format(help_menu['help'][0])}")
 
         cmd = input(f"{start_space}> ")
         try:
