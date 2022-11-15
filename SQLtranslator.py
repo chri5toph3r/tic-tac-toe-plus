@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from dev_tools import dprint, dev
+from dev_tools import dprint, dev, cprint, command_help
 
 
 class DBMSTranslator:
@@ -15,9 +15,41 @@ class DBMSTranslator:
         self.conn = None
         self.cur = None
         self.methods_list = []
+        self.methods_help_dic = {
+            "create_tables": "\033[1;3m"
+                             "takes kwargs\n"
+                             "table=['column_name DATA_TYPE etc',...],...\n"
+                             "> CREATE TABLE table (column_name DATA_TYPE etc,...);"
+                             "\033[0m",
+            "clear_tables": "\033[1;3m"
+                            "takes kwargs\n"
+                            "table='',..."
+                            "> DELETE FROM table;\n"
+                            "table='expression'"
+                            "> DELETE FROM table WHERE expression;\n"
+                            "table=None"
+                            "> DROP TABLE table;\n"
+                            "\033[0m",
+            "add_columns": "\033[1;3m"
+                           "takes kwargs\n"
+                           "table=(['col_name DATA_TYPE'], {'col_name DATA_TYPE': 'default_value'}),..."
+                           "> ALTER TABLE table ADD col_name DATA_TYPE;"
+                           "> ALTER TABLE table ADD col_name DATA_TYPE, DEFAULT default_value;"
+                           "\033[0m",
+            "rename_columns": "\033[1;3m"
+                              "takes kwargs\n"
+                              "table={'old_name': 'new_name',...},..."
+                              "> ALTER TABLE table RENAME COLUMN old_name TO new_name;"
+                              "\033[0m",
+            "delete_columns": "\033[1;3m"
+                              "takes kwargs\n"
+                              "table=['column_name',...],..."
+                              "> ALTER TABLE table DROP COLUMN column;"
+                              "\033[0m",
+        }
 
     def get_methods(self):
-        self.methods_list = [attrib+"()" for attrib in dir(self)
+        self.methods_list = [attrib + "()" for attrib in dir(self)
                              if callable(getattr(self, attrib)) and
                              not attrib.startswith("__") and
                              attrib not in self.hidden_methods]
@@ -51,10 +83,7 @@ class DBMSTranslator:
         """
         # help option
         if not kwargs:
-            print("\033[1;3m"
-                  "takes kwargs\n"
-                  "table=['column_name DATA_TYPE etc',...] -> CREATE TABLE table (columns);"
-                  "\033[0m")
+            cprint(self.methods_help_dic.get("create_tables"))
             return None
 
         try:
@@ -85,12 +114,7 @@ class DBMSTranslator:
         """
         # help option
         if not kwargs:
-            print("\033[1;3m"
-                  "takes kwargs\n"
-                  "table='' -> DELETE FROM table;\n"
-                  "table='expression' -> DELETE FROM table WHERE expression;\n"
-                  "table=None -> DROP TABLE table;\n"
-                  "\033[0m")
+            cprint(self.methods_help_dic.get("clear_tables"))
             return None
 
         try:
@@ -121,10 +145,7 @@ class DBMSTranslator:
         """
         # help option
         if not kwargs:
-            print("\033[1;3m"
-                  "takes kwargs\n"
-                  "table='' -> DELETE FROM table;"
-                  "\033[0m")
+            cprint(self.methods_help_dic.get("add_columns"))
             return None
 
         try:
@@ -152,16 +173,23 @@ class DBMSTranslator:
 
         :return: True if successfully created, False otherwise
         """
+        # help option
+        if not kwargs:
+            cprint(self.methods_help_dic.get("rename_columns"))
+            return None
+
         try:
+            commands = []
             for table, columns in kwargs.items():
                 for old_col_name, new_col_name in columns:
                     command = f"ALTER TABLE {table} RENAME COLUMN {old_col_name} TO {new_col_name};"
                     dprint(command)
                     self.cur.execute(command)
-            return True
+                    commands.append(command)
+            return commands
         except sqlite3.OperationalError as err:
             dprint(err)
-        return False
+        return None
 
     def delete_columns(self, **kwargs: list[str]):
         """
@@ -170,6 +198,10 @@ class DBMSTranslator:
 
         :return: True if successfully created, False otherwise
         """
+        # help option
+        if not kwargs:
+            cprint(self.methods_help_dic.get("delete_columns"))
+            return None
 
         try:
             for table, columns in kwargs.items():
@@ -194,6 +226,11 @@ class DBMSTranslator:
 
         :return: True if successfully created, False otherwise
         """
+        # help option
+        if not kwargs:
+            cprint(self.methods_help_dic.get("insert_values"))
+            return None
+
         try:
             for table, data in kwargs.items():
                 columns = ""
@@ -213,6 +250,7 @@ class DBMSTranslator:
         except sqlite3.OperationalError as err:
             dprint(err)
         return False
+
     # dictionary if you specify column, list in order of columns otherwise
     # you cannot use list if there is AI column in table
 
@@ -223,6 +261,11 @@ class DBMSTranslator:
         :param kwargs: table name as a key, columns data in a list[str]
         :return: True if successfully created, False otherwise
         """
+        # help option
+        if not kwargs:
+            cprint(self.methods_help_dic.get("update_columns_values"))
+            return None
+
         try:
             for table, data in kwargs.items():
                 column, value = data
@@ -235,27 +278,41 @@ class DBMSTranslator:
 
     # read data, print if dev
     def get_tables_names(self):
-        if dev:
+        """
+        :return: tables list
+        """
+        if command_help:
             try:
+                tables = []
                 command = f"SELECT name FROM sqlite_master WHERE type='table';"
                 self.cur.execute(command)
                 for table in self.cur.fetchall():
-                    dprint(table[0])
+                    cprint(table[0])
+                    tables.append(table[0])
             except sqlite3.OperationalError as err:
-                dprint(err)
-        return dev
+                cprint(err)
+        return None
 
     def get_columns_names(self, *args):
-        if dev:
+        """
+        :param args: table name
+        :return: tables dictionary with columns lists as values
+        """
+        if command_help:
             try:
+                tables = {}
                 for table in args:
+                    columns = []
                     command = f"SELECT * from {table}"
                     self.cur = self.conn.execute(command)
                     for column in list(map(lambda x: x[0], self.cur.description)):
-                        dprint(column)
+                        cprint(column)
+                        columns.append(column)
+                    tables[table] = columns
+                return tables
             except sqlite3.OperationalError as err:
-                dprint(err)
-        return dev
+                cprint(err)
+        return None
 
 
 if __name__ == '__main__':
@@ -271,8 +328,8 @@ if __name__ == '__main__':
         "info_right": ">"
     }
 
-    menu_title = symbols['info_left']+" {} "+symbols['info_right']
-    menu_header = symbols['left']+"{}"+symbols['right']
+    menu_title = symbols['info_left'] + " {} " + symbols['info_right']
+    menu_header = symbols['left'] + "{}" + symbols['right']
 
     menu_info = menu_title.format("METHODS")
     help_info = menu_title.format("HELP")
@@ -302,11 +359,11 @@ if __name__ == '__main__':
         else:
             max_width = max(len(indexed_method) for indexed_method in methods_menu_list)
 
-        print(start_space+menu_header.format(menu_info.center(max_width - 2, symbols['sep'])))
+        print(start_space + menu_header.format(menu_info.center(max_width - 2, symbols['sep'])))
         for indexed_method in methods_menu_list:
             print(f"{start_space}{indexed_method}")
         if help_flag:
-            print(start_space+menu_header.format(help_info.center(max_width - 2, symbols['sep'])))
+            print(start_space + menu_header.format(help_info.center(max_width - 2, symbols['sep'])))
             for option in help_menu:
                 print(f"{start_space}{help_menu[option][1].format(help_menu[option][0])}")
             help_flag = False
