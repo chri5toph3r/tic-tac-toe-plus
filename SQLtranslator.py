@@ -49,7 +49,16 @@ class DBMSTranslator:
 
         :return: True if successfully created, False otherwise
         """
+        # help option
+        if not kwargs:
+            print("\033[1;3m"
+                  "takes kwargs\n"
+                  "table=['column_name DATA_TYPE etc',...] -> CREATE TABLE table (columns);"
+                  "\033[0m")
+            return None
+
         try:
+            commands = []
             for table, data in kwargs.items():
                 columns = ", "
                 columns = columns.join(data)
@@ -57,23 +66,35 @@ class DBMSTranslator:
                 command = f"CREATE TABLE {table} ({columns});"
                 dprint(command)
                 self.cur.execute(command)
-            return True
+                commands.append(command)
+            return commands
         except sqlite3.OperationalError as err:
             dprint(err)
         return None
 
-    def clear_tables(self, **kwargs: list):
+    def clear_tables(self, **kwargs: str):
         """
         if not value but is not None, column is cleared\n
         > DELETE FROM {table}\n
         if value is given and is not None, condition is added\n
-        > WHERE {value} (optional)\n
+        > WHERE {value} (optional);\n
         if value is None, the column is deleted:\n
-        > DROP TABLE {table}
+        > DROP TABLE {table};
 
         :return: True if successfully created, False otherwise
         """
+        # help option
+        if not kwargs:
+            print("\033[1;3m"
+                  "takes kwargs\n"
+                  "table='' -> DELETE FROM table;\n"
+                  "table='expression' -> DELETE FROM table WHERE expression;\n"
+                  "table=None -> DROP TABLE table;\n"
+                  "\033[0m")
+            return None
+
         try:
+            commands = []
             for table, value in kwargs.items():
                 command = f"DELETE FROM {table}"
                 if value:
@@ -84,37 +105,49 @@ class DBMSTranslator:
 
                 dprint(command)
                 self.cur.execute(command)
-            return True
+                commands.append(command)
+            return commands
         except sqlite3.OperationalError as err:
             dprint(err)
-        return False
+        return None
 
     # manipulate columns
     def add_columns(self, **kwargs):
         """
-        > ALTER TABLE <table> ADD <column>, default <default>;\n
+        > ALTER TABLE {table} ADD {column}, default {default};\n
         table=(["col_name DATA_TYPE"], {"col_name DATA_TYPE": "default_value"})
 
         :return:True if successfully created, False otherwise
         """
+        # help option
+        if not kwargs:
+            print("\033[1;3m"
+                  "takes kwargs\n"
+                  "table='' -> DELETE FROM table;"
+                  "\033[0m")
+            return None
+
         try:
+            commands = []
             for table, value in kwargs.items():
                 for column in value:
-                    default = ""
+                    command = f"ALTER TABLE {table} ADD {column}"
                     if type(value) is dict:
-                        default = f" default {value[column]}"
-                    command = f"ALTER TABLE {table} ADD {column}{default};"
+                        command += f" default {value[column]}"
+                    command += ";"
+
                     dprint(command)
                     self.cur.execute(command)
-            return True
+                    commands.append(command)
+            return commands
         except sqlite3.OperationalError as err:
             dprint(err)
-        return False
+        return None
     # list for columns with no default value, dictionary otherwise
 
     def rename_columns(self, **kwargs: dict[str: str]):
         """
-        > ALTER TABLE <table> RENAME COLUMN <old_col_name> TO <new_col_name>;\n
+        > ALTER TABLE {table} RENAME COLUMN {old_col_name} TO {new_col_name};\n
         table={"old_col_name": "new_col_name"}
 
         :return: True if successfully created, False otherwise
@@ -132,7 +165,7 @@ class DBMSTranslator:
 
     def delete_columns(self, **kwargs: list[str]):
         """
-        > ALTER TABLE <table> DROP COLUMN <column>;\n
+        > ALTER TABLE {table} DROP COLUMN {column};\n
         table=[columns]\n
 
         :return: True if successfully created, False otherwise
@@ -283,20 +316,24 @@ if __name__ == '__main__':
         cmd = input(f"{start_space}> ")
         try:
             if cmd:
-                if cmd == help_menu["help"][0]:
-                    help_flag = True
-                elif cmd == help_menu["exit"][0]:
-                    run_flag = False
-                elif cmd == help_menu["clear"][0]:
-                    if clear_flag:
-                        clear_flag = False
-                    else:
-                        clear_flag = True
-                elif cmd == help_menu["start_space"][0]:
-                    start_space_index = (start_space_index + 1) % len(spaces)
-                    start_space = spaces[start_space_index]
-                else:
+                if cmd.lower() in help_menu:  # is recognized as menu command
+
+                    if cmd.lower() == help_menu["help"][0]:
+                        help_flag = True
+                    elif cmd.lower() == help_menu["exit"][0]:
+                        run_flag = False
+                    elif cmd.lower() == help_menu["clear"][0]:
+                        if clear_flag:
+                            clear_flag = False
+                        else:
+                            clear_flag = True
+                    elif cmd == help_menu["start_space"][0]:
+                        start_space_index = (start_space_index + 1) % len(spaces)
+                        start_space = spaces[start_space_index]
+
+                else:  # is not recognized as menu command
                     exec("data_base." + cmd)
+
         except sqlite3.OperationalError as oper:
             print(f"{start_space}{oper}")
         except AttributeError as atrer:
