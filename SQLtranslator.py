@@ -16,36 +16,73 @@ class DBMSTranslator:
         self.cur = None
         self.methods_list = []
         self.methods_help_dic = {
-            "create_tables": "\033[1;3m"
-                             "takes kwargs\n"
-                             "table=['column_name DATA_TYPE etc',...],...\n"
-                             "> CREATE TABLE table (column_name DATA_TYPE etc,...);"
-                             "\033[0m",
-            "clear_tables": "\033[1;3m"
-                            "takes kwargs\n"
-                            "table='',..."
-                            "> DELETE FROM table;\n"
-                            "table='expression'"
-                            "> DELETE FROM table WHERE expression;\n"
-                            "table=None"
-                            "> DROP TABLE table;\n"
-                            "\033[0m",
-            "add_columns": "\033[1;3m"
-                           "takes kwargs\n"
-                           "table=(['col_name DATA_TYPE'], {'col_name DATA_TYPE': 'default_value'}),..."
-                           "> ALTER TABLE table ADD col_name DATA_TYPE;"
-                           "> ALTER TABLE table ADD col_name DATA_TYPE, DEFAULT default_value;"
-                           "\033[0m",
-            "rename_columns": "\033[1;3m"
-                              "takes kwargs\n"
-                              "table={'old_name': 'new_name',...},..."
-                              "> ALTER TABLE table RENAME COLUMN old_name TO new_name;"
-                              "\033[0m",
-            "delete_columns": "\033[1;3m"
-                              "takes kwargs\n"
-                              "table=['column_name',...],..."
-                              "> ALTER TABLE table DROP COLUMN column;"
-                              "\033[0m",
+            "create_tables": 
+            """
+            \033[1;3m
+            takes kwargs
+            table=['column_name DATA_TYPE etc',...],...
+            > CREATE TABLE table (column_name DATA_TYPE etc,...);
+            \033[0m
+            """,
+
+            "clear_tables": 
+            """
+            \033[1;3m
+            takes kwargs
+            table='',...
+            > DELETE FROM table;
+            table='expression'
+            > DELETE FROM table WHERE expression;
+            table=None
+            > DROP TABLE table;
+            \033[0m
+            """,
+
+            "add_columns": 
+            """
+            \033[1;3m
+            takes kwargs
+            table=(['col_name DATA_TYPE'], {'col_name DATA_TYPE': 'default_value'}),...
+            > ALTER TABLE table ADD col_name DATA_TYPE;
+            > ALTER TABLE table ADD col_name DATA_TYPE, DEFAULT default_value;"
+            \033[0m
+            """,
+
+            "rename_columns": 
+            """
+            \033[1;3m
+            takes kwargs\n
+            table={'old_name': 'new_name',...},..."
+            > ALTER TABLE table RENAME COLUMN old_name TO new_name;"
+            \033[0m
+            """,
+
+            "delete_columns": 
+            """
+            \033[1;3m
+            takes kwargs
+            table=['column_name',...],...
+            > ALTER TABLE table DROP COLUMN column;
+            \033[0m
+            """,
+
+            "insert_values": 
+            """
+            \033[1;3m
+            takes kwargs
+            *if not AI col, values in order of columns:
+            table=[values],...
+            > INSERT INTO table VALUES(values);
+            *assign value to specific column:
+            table={'column': 'value',...},...
+            > INSERT INTO table columns VALUES(values);
+            \033[0m
+            """,
+
+            "update_columns_values":
+            """
+            \033[1;3m
+            """
         }
 
     def get_methods(self):
@@ -71,7 +108,7 @@ class DBMSTranslator:
         return True
 
     # manipulate tables
-    def create_tables(self, **kwargs: list[str]):
+    def create_tables(self, **kwargs: list[str]) -> list:
         """
         > CREATE TABLE {table} ({columns});\n
         create_tables(table=["col1 INTEGER", "col2 TEXT"])\n
@@ -79,7 +116,7 @@ class DBMSTranslator:
         table_name = "table"\n
         create_tables(**{table_name: ["col1 INTEGER", "col2 TEXT"])
 
-        :return: True if successfully created, False otherwise
+        :return: list of executed commands or None
         """
         # help option
         if not kwargs:
@@ -101,7 +138,7 @@ class DBMSTranslator:
             dprint(err)
         return None
 
-    def clear_tables(self, **kwargs: str):
+    def clear_tables(self, **kwargs: str) -> list:
         """
         if not value but is not None, column is cleared\n
         > DELETE FROM {table}\n
@@ -110,7 +147,7 @@ class DBMSTranslator:
         if value is None, the column is deleted:\n
         > DROP TABLE {table};
 
-        :return: True if successfully created, False otherwise
+        :return: list of executed commands or None
         """
         # help option
         if not kwargs:
@@ -136,12 +173,12 @@ class DBMSTranslator:
         return None
 
     # manipulate columns
-    def add_columns(self, **kwargs):
+    def add_columns(self, **kwargs) -> list:
         """
         > ALTER TABLE {table} ADD {column}, default {default};\n
         table=(["col_name DATA_TYPE"], {"col_name DATA_TYPE": "default_value"})
 
-        :return:True if successfully created, False otherwise
+        :return: list of executed commands or None
         """
         # help option
         if not kwargs:
@@ -166,12 +203,12 @@ class DBMSTranslator:
         return None
     # list for columns with no default value, dictionary otherwise
 
-    def rename_columns(self, **kwargs: dict[str: str]):
+    def rename_columns(self, **kwargs: dict[str: str]) -> list:
         """
         > ALTER TABLE {table} RENAME COLUMN {old_col_name} TO {new_col_name};\n
         table={"old_col_name": "new_col_name"}
 
-        :return: True if successfully created, False otherwise
+        :return: list of executed commands or None
         """
         # help option
         if not kwargs:
@@ -191,12 +228,12 @@ class DBMSTranslator:
             dprint(err)
         return None
 
-    def delete_columns(self, **kwargs: list[str]):
+    def delete_columns(self, **kwargs: list[str]) -> list:
         """
         > ALTER TABLE {table} DROP COLUMN {column};\n
-        table=[columns]\n
+        table=[columns]
 
-        :return: True if successfully created, False otherwise
+        :return: list of executed commands or None
         """
         # help option
         if not kwargs:
@@ -204,18 +241,20 @@ class DBMSTranslator:
             return None
 
         try:
+            commands = []
             for table, columns in kwargs.items():
                 for column in columns:
                     command = f"ALTER TABLE {table} DROP COLUMN {column};"
                     dprint(command)
                     self.cur.execute(command)
-            return True
+                    commands.append(command)
+            return commands
         except sqlite3.OperationalError as err:
             dprint(err)
-        return False
+        return None
 
     # manipulate values
-    def insert_values(self, **kwargs):
+    def insert_values(self, **kwargs) -> list:
         """
         > INSERT INTO {table} {columns}VALUES({values});\n
         table=[values]\n
@@ -224,14 +263,17 @@ class DBMSTranslator:
         column names syntax: "column_name"\n
         values syntax: "'text_value'"
 
-        :return: True if successfully created, False otherwise
+        :return: list of executed commands or None
         """
         # help option
         if not kwargs:
             cprint(self.methods_help_dic.get("insert_values"))
             return None
 
+        # dictionary if you specify column, list in order of columns otherwise
+        # you cannot use list if there is AI column in table
         try:
+            commands = []
             for table, data in kwargs.items():
                 columns = ""
                 values = ", "
@@ -246,20 +288,18 @@ class DBMSTranslator:
                 command = f"INSERT INTO {table} {columns}VALUES({values});"
                 dprint(command)
                 self.cur.execute(command)
-            return True
+                commands.append(command)
+            return commands
         except sqlite3.OperationalError as err:
             dprint(err)
-        return False
+        return None
 
-    # dictionary if you specify column, list in order of columns otherwise
-    # you cannot use list if there is AI column in table
-
-    def update_columns_values(self, **kwargs: tuple[str, str]):
+    def update_columns_values(self, **kwargs: dict[str: str]) -> list:
         """
-        > UPDATE {table} SET {column} = '{value}';
+        > UPDATE {table} SET {column} = '{value}';\n
+        table={'column': 'value'}
 
-        :param kwargs: table name as a key, columns data in a list[str]
-        :return: True if successfully created, False otherwise
+        :return: list of executed commands or None
         """
         # help option
         if not kwargs:
@@ -267,17 +307,20 @@ class DBMSTranslator:
             return None
 
         try:
-            for table, data in kwargs.items():
-                column, value = data
-                dprint(f"UPDATE {table} SET {column} = '{value}';")
-                self.cur.execute(f"UPDATE {table} SET {column} = '{value}';")
-            return True
+            commands = []
+            for table, columns in kwargs.items():
+                for column, value in columns.items():
+                    command = f"UPDATE {table} SET {column} = '{value}';"
+                    dprint(command)
+                    self.cur.execute(command)
+                    commands.append(command)
+            return commands
         except sqlite3.OperationalError as err:
             dprint(err)
-        return False
+        return None
 
     # read data, print if dev
-    def get_tables_names(self):
+    def get_tables_names(self) -> list:
         """
         :return: tables list
         """
@@ -289,11 +332,12 @@ class DBMSTranslator:
                 for table in self.cur.fetchall():
                     cprint(table[0])
                     tables.append(table[0])
+                return tables
             except sqlite3.OperationalError as err:
                 cprint(err)
         return None
 
-    def get_columns_names(self, *args):
+    def get_columns_names(self, *args) -> dict:
         """
         :param args: table name
         :return: tables dictionary with columns lists as values
