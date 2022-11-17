@@ -1,6 +1,7 @@
 import os
 import sqlite3
-from dev_tools import dprint, dev, cprint, command_help
+from dev_tools import dprint, cprint, command_help
+import inspect
 
 
 class DBMSTranslator:
@@ -16,65 +17,69 @@ class DBMSTranslator:
         self.cur = None
         self.methods_list = []
         self.methods_help_dic = {
-            "create_tables": 
+            "create_tables":
             """
             \033[1;3m
             takes kwargs
-            table=['column_name DATA_TYPE etc',...],...
-            > CREATE TABLE table (column_name DATA_TYPE etc,...);
+            columns syntax: "col_name DATA_TYPE etc"
+            tables=[columns]
+            > CREATE TABLE table (columns);
             \033[0m
             """,
 
-            "clear_tables": 
+            "clear_tables":
             """
             \033[1;3m
             takes kwargs
-            table='',...
+            tables=""
             > DELETE FROM table;
-            table='expression'
+            tables=expressions
             > DELETE FROM table WHERE expression;
-            table=None
+            tables=None
             > DROP TABLE table;
             \033[0m
             """,
 
-            "add_columns": 
+            "add_columns":
             """
             \033[1;3m
             takes kwargs
-            table=(['col_name DATA_TYPE'], {'col_name DATA_TYPE': 'default_value'}),...
-            > ALTER TABLE table ADD col_name DATA_TYPE;
-            > ALTER TABLE table ADD col_name DATA_TYPE, DEFAULT default_value;"
+            columns syntax: "col_name DATA_TYPE etc"
+            default_values syntax: "'text_value'", "123", "1.23"
+            tables=([columns], {columns: default_values})
+            > ALTER TABLE table ADD col_name DATA_TYPE etc;
+            > ALTER TABLE table ADD col_name DATA_TYPE etc, DEFAULT default_value;
             \033[0m
             """,
 
-            "rename_columns": 
+            "rename_columns":
             """
             \033[1;3m
             takes kwargs\n
-            table={'old_name': 'new_name',...},..."
-            > ALTER TABLE table RENAME COLUMN old_name TO new_name;"
+            tables={old_names: new_names}
+            > ALTER TABLE table RENAME COLUMN old_name TO new_name;
             \033[0m
             """,
 
-            "delete_columns": 
+            "delete_columns":
             """
             \033[1;3m
             takes kwargs
-            table=['column_name',...],...
-            > ALTER TABLE table DROP COLUMN column;
+            tables=[columns_names]
+            > ALTER TABLE table DROP COLUMN column_name;
             \033[0m
             """,
 
-            "insert_values": 
+            "insert_values":
             """
             \033[1;3m
             takes kwargs
+            values syntax: "'text_value'", "123", "1.23"
             *if not AI col, values in order of columns:
-            table=[values],...
+            tables=[values]
             > INSERT INTO table VALUES(values);
             *assign value to specific column:
-            table={'column': 'value',...},...
+            tables={column: value}
             > INSERT INTO table columns VALUES(values);
             \033[0m
             """,
@@ -82,8 +87,17 @@ class DBMSTranslator:
             "update_columns_values":
             """
             \033[1;3m
+            takes kwargs
+            values syntax: "'text_value'", "123", "1.23"
+            tables={columns: values}
+            > UPDATE table SET column = value;
+            \033[0m
             """
         }
+        # using triple quoted string includes redundant tabs
+        # so texts have to be formatted before they are ready to be displayed
+        self.methods_help_dic = {key: inspect.cleandoc(value)
+                                 for key, value in self.methods_help_dic.items()}
 
     def get_methods(self):
         self.methods_list = [attrib + "()" for attrib in dir(self)
@@ -108,7 +122,7 @@ class DBMSTranslator:
         return True
 
     # manipulate tables
-    def create_tables(self, **kwargs: list[str]) -> list:
+    def create_tables(self, **kwargs: list[str]) -> list | None:
         """
         > CREATE TABLE {table} ({columns});\n
         create_tables(table=["col1 INTEGER", "col2 TEXT"])\n
@@ -138,7 +152,7 @@ class DBMSTranslator:
             dprint(err)
         return None
 
-    def clear_tables(self, **kwargs: str) -> list:
+    def clear_tables(self, **kwargs: str) -> list | None:
         """
         if not value but is not None, column is cleared\n
         > DELETE FROM {table}\n
@@ -173,7 +187,7 @@ class DBMSTranslator:
         return None
 
     # manipulate columns
-    def add_columns(self, **kwargs) -> list:
+    def add_columns(self, **kwargs) -> list | None:
         """
         > ALTER TABLE {table} ADD {column}, default {default};\n
         table=(["col_name DATA_TYPE"], {"col_name DATA_TYPE": "default_value"})
@@ -203,7 +217,7 @@ class DBMSTranslator:
         return None
     # list for columns with no default value, dictionary otherwise
 
-    def rename_columns(self, **kwargs: dict[str: str]) -> list:
+    def rename_columns(self, **kwargs: dict[str: str]) -> list | None:
         """
         > ALTER TABLE {table} RENAME COLUMN {old_col_name} TO {new_col_name};\n
         table={"old_col_name": "new_col_name"}
@@ -228,7 +242,9 @@ class DBMSTranslator:
             dprint(err)
         return None
 
-    def delete_columns(self, **kwargs: list[str]) -> list:
+    # different approach to deleting more than one column
+    # https://blog.niklasottosson.com/databases/how-to-drop-a-column-in-sqlite-3/
+    def delete_columns(self, **kwargs: list[str]) -> list | None:
         """
         > ALTER TABLE {table} DROP COLUMN {column};\n
         table=[columns]
@@ -254,7 +270,7 @@ class DBMSTranslator:
         return None
 
     # manipulate values
-    def insert_values(self, **kwargs) -> list:
+    def insert_values(self, **kwargs) -> list | None:
         """
         > INSERT INTO {table} {columns}VALUES({values});\n
         table=[values]\n
@@ -294,10 +310,14 @@ class DBMSTranslator:
             dprint(err)
         return None
 
-    def update_columns_values(self, **kwargs: dict[str: str]) -> list:
+    # for more complex updating (with where, order, etc)
+    # TODO: one command for multiple columns in one table
+    # https://www.sqlitetutorial.net/sqlite-update/
+
+    def update_columns_values(self, **kwargs: dict[str: str]) -> list | None:
         """
-        > UPDATE {table} SET {column} = '{value}';\n
-        table={'column': 'value'}
+        > UPDATE {table} SET {column} = {value};\n
+        table={"column": "'value'"}
 
         :return: list of executed commands or None
         """
@@ -310,7 +330,7 @@ class DBMSTranslator:
             commands = []
             for table, columns in kwargs.items():
                 for column, value in columns.items():
-                    command = f"UPDATE {table} SET {column} = '{value}';"
+                    command = f"UPDATE {table} SET {column} = {value};"
                     dprint(command)
                     self.cur.execute(command)
                     commands.append(command)
@@ -319,10 +339,11 @@ class DBMSTranslator:
             dprint(err)
         return None
 
-    # read data, print if dev
-    def get_tables_names(self) -> list:
+    # read data, print if commmand_help
+    # TODO: documentation and help for getters
+    def get_tables_names(self) -> list | None:
         """
-        :return: tables list
+        :return: tables list or None
         """
         if command_help:
             try:
@@ -337,10 +358,10 @@ class DBMSTranslator:
                 cprint(err)
         return None
 
-    def get_columns_names(self, *args) -> dict:
+    def get_columns_names(self, *args) -> dict | None:
         """
         :param args: table name
-        :return: tables dictionary with columns lists as values
+        :return: tables dictionary with columns lists as values or None
         """
         if command_help:
             try:
