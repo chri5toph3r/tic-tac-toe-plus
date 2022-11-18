@@ -401,6 +401,7 @@ if __name__ == '__main__':
 
     help_menu = {
         "help": ("!h", "{} for !commands help"),
+        "method_info": ("!i", "{} method_name for info about method"),
         "clear": ("!c", "{} to switch terminal window clearing"),
         "exit": ("!e", "{} to exit"),
         "start_space": ("!s", "{} to switch a whitespace before each line")
@@ -442,6 +443,9 @@ if __name__ == '__main__':
 
                     if cmd.lower() == help_menu["help"][0]:
                         help_flag = True
+                    elif cmd.lower() == help_menu["method_info"][0]:
+                        cmd = cmd.lower().strip(help_menu["method_info"][0]).strip("()")
+                        cprint(data_base.methods_help_dic.get(cmd))
                     elif cmd.lower() == help_menu["exit"][0]:
                         run_flag = False
                     elif cmd.lower() == help_menu["clear"][0]:
