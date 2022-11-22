@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from dev_tools import dprint, cprint, command_help
+from dev_tools import dprint
 import inspect
 
 
@@ -332,17 +332,16 @@ class DBMSTranslator:
         """
         :return: tables list or None
         """
-        if command_help:
-            try:
-                tables = []
-                command = f"SELECT name FROM sqlite_master WHERE type='table';"
-                self.cur.execute(command)
-                for table in self.cur.fetchall():
-                    cprint(table[0])
-                    tables.append(table[0])
-                return tables
-            except sqlite3.OperationalError as err:
-                cprint(err)
+        try:
+            tables = []
+            command = f"SELECT name FROM sqlite_master WHERE type='table';"
+            self.cur.execute(command)
+            for table in self.cur.fetchall():
+                tprint(table[0])
+                tables.append(table[0])
+            return tables
+        except sqlite3.OperationalError as err:
+            dprint(err)
         return None
 
     def get_columns_names(self, *args) -> dict | None:
@@ -350,24 +349,31 @@ class DBMSTranslator:
         :param args: table name
         :return: tables dictionary with columns lists as values or None
         """
-        if command_help:
-            try:
-                tables = {}
-                for table in args:
-                    columns = []
-                    command = f"SELECT * FROM {table};"
-                    self.cur = self.conn.execute(command)
-                    for column in list(map(lambda x: x[0], self.cur.description)):
-                        cprint(column)
-                        columns.append(column)
-                    tables[table] = columns
-                return tables
-            except sqlite3.OperationalError as err:
-                cprint(err)
+        try:
+            tables = {}
+            for table in args:
+                columns = []
+                command = f"SELECT * FROM {table};"
+                self.cur = self.conn.execute(command)
+                for column in list(map(lambda x: x[0], self.cur.description)):
+                    tprint(column)
+                    columns.append(column)
+                tables[table] = columns
+            return tables
+        except sqlite3.OperationalError as err:
+            dprint(err)
         return None
 
 
+start_space = ""
+def tprint(*args, **kwargs):
+    print(start_space, end="")
+    print(*args, **kwargs)
+    return
+
+
 if __name__ == '__main__':
+
     data_base = DBMSTranslator()
     data_base.open("tic-tac-toe-plus.db")
     methods_menu_list = [f"{index}. {method}" for index, method in enumerate(data_base.get_methods(), 1)]
@@ -412,16 +418,16 @@ if __name__ == '__main__':
         else:
             max_width = max(len(indexed_method) for indexed_method in methods_menu_list)
 
-        print(start_space + menu_header.format(menu_info.center(max_width - 2, symbols['sep'])))
+        tprint(menu_header.format(menu_info.center(max_width - 2, symbols['sep'])))
         for indexed_method in methods_menu_list:
-            print(f"{start_space}{indexed_method}")
+            tprint(indexed_method)
         if help_flag:
-            print(start_space + menu_header.format(help_info.center(max_width - 2, symbols['sep'])))
+            tprint(menu_header.format(help_info.center(max_width - 2, symbols['sep'])))
             for option in help_menu:
-                print(f"{start_space}{help_menu[option][1].format(help_menu[option][0])}")
+                tprint(help_menu[option][1].format(help_menu[option][0]))
             help_flag = False
         else:
-            print(f"{start_space}{len(methods_menu_list) + 1}. {help_menu['help'][1].format(help_menu['help'][0])}")
+            tprint(f"{len(methods_menu_list) + 1}. {help_menu['help'][1].format(help_menu['help'][0])}")
 
         cmd = input(f"{start_space}> ")
         try:
@@ -441,23 +447,24 @@ if __name__ == '__main__':
                         start_space = spaces[start_space_index]
                 elif cmd.lower().startswith(help_menu['method_info'][0]):
                     method_name = cmd.lower().strip(help_menu["method_info"][0]).strip("()").strip()
-                    cprint(data_base.get_method_info(method_name))
+                    tprint(data_base.get_method_info(method_name))
                 else:  # is not recognized as menu command
                     exec("data_base." + cmd)
 
         except sqlite3.OperationalError as oper:
-            print(f"{start_space}{oper}")
+            tprint(oper)
         except AttributeError as atrer:
-            print(f"{start_space}{atrer}")
+            tprint(atrer)
         except SyntaxError as stxer:
-            print(f"{start_space}{stxer}")
+            tprint(stxer)
         except TypeError as tper:
-            print(f"{start_space}{tper}")
+            tprint(tper)
         if run_flag:
             if clear_flag:
                 if not help_flag:
                     input(f"{start_space}...")
             else:
                 print()
+    data_base.delete_columns(user=["user_00"])
 
     data_base.close()
