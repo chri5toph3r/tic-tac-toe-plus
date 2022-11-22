@@ -92,6 +92,24 @@ class DBMSTranslator:
             tables={columns: values}
             > UPDATE table SET column = value;
             \033[0m
+            """,
+
+            "get_tables_names":
+            """
+            \033[1;3m
+            takes no arguments
+            > SELECT name FROM sqlite_master WHERE type='table';
+            returns a list of tables from connected database
+            \033[0m
+            """,
+
+            "get_columns_names":
+            """
+            \033[1;3m
+            takes args
+            > SELECT * FROM table;
+            returns a dictionary {table: [columns],...}
+            \033[0m
             """
         }
         # using triple quoted string includes redundant tabs
@@ -105,6 +123,9 @@ class DBMSTranslator:
                              not attrib.startswith("__") and
                              attrib not in self.hidden_methods]
         return self.methods_list
+
+    def get_method_info(self, method):
+        return self.methods_help_dic.get(method, "No info for this method.")
 
     def open(self, database):
         if not self.database:
@@ -132,10 +153,6 @@ class DBMSTranslator:
 
         :return: list of executed commands or None
         """
-        # help option
-        if not kwargs:
-            cprint(self.methods_help_dic.get("create_tables"))
-            return None
 
         try:
             commands = []
@@ -163,11 +180,6 @@ class DBMSTranslator:
 
         :return: list of executed commands or None
         """
-        # help option
-        if not kwargs:
-            cprint(self.methods_help_dic.get("clear_tables"))
-            return None
-
         try:
             commands = []
             for table, value in kwargs.items():
@@ -194,11 +206,6 @@ class DBMSTranslator:
 
         :return: list of executed commands or None
         """
-        # help option
-        if not kwargs:
-            cprint(self.methods_help_dic.get("add_columns"))
-            return None
-
         try:
             commands = []
             for table, value in kwargs.items():
@@ -224,11 +231,6 @@ class DBMSTranslator:
 
         :return: list of executed commands or None
         """
-        # help option
-        if not kwargs:
-            cprint(self.methods_help_dic.get("rename_columns"))
-            return None
-
         try:
             commands = []
             for table, columns in kwargs.items():
@@ -251,11 +253,6 @@ class DBMSTranslator:
 
         :return: list of executed commands or None
         """
-        # help option
-        if not kwargs:
-            cprint(self.methods_help_dic.get("delete_columns"))
-            return None
-
         try:
             commands = []
             for table, columns in kwargs.items():
@@ -281,11 +278,6 @@ class DBMSTranslator:
 
         :return: list of executed commands or None
         """
-        # help option
-        if not kwargs:
-            cprint(self.methods_help_dic.get("insert_values"))
-            return None
-
         # dictionary if you specify column, list in order of columns otherwise
         # you cannot use list if there is AI column in table
         try:
@@ -321,11 +313,6 @@ class DBMSTranslator:
 
         :return: list of executed commands or None
         """
-        # help option
-        if not kwargs:
-            cprint(self.methods_help_dic.get("update_columns_values"))
-            return None
-
         try:
             commands = []
             for table, columns in kwargs.items():
@@ -368,7 +355,7 @@ class DBMSTranslator:
                 tables = {}
                 for table in args:
                     columns = []
-                    command = f"SELECT * from {table}"
+                    command = f"SELECT * FROM {table};"
                     self.cur = self.conn.execute(command)
                     for column in list(map(lambda x: x[0], self.cur.description)):
                         cprint(column)
@@ -439,13 +426,9 @@ if __name__ == '__main__':
         cmd = input(f"{start_space}> ")
         try:
             if cmd:
-                if cmd.lower() in help_menu:  # is recognized as menu command
-
+                if cmd.lower() in list(zip(*help_menu.values()))[0]:  # is recognized as menu command
                     if cmd.lower() == help_menu["help"][0]:
                         help_flag = True
-                    elif cmd.lower() == help_menu["method_info"][0]:
-                        cmd = cmd.lower().strip(help_menu["method_info"][0]).strip("()")
-                        cprint(data_base.methods_help_dic.get(cmd))
                     elif cmd.lower() == help_menu["exit"][0]:
                         run_flag = False
                     elif cmd.lower() == help_menu["clear"][0]:
@@ -453,10 +436,12 @@ if __name__ == '__main__':
                             clear_flag = False
                         else:
                             clear_flag = True
-                    elif cmd == help_menu["start_space"][0]:
+                    elif cmd.lower() == help_menu["start_space"][0]:
                         start_space_index = (start_space_index + 1) % len(spaces)
                         start_space = spaces[start_space_index]
-
+                elif cmd.lower().startswith(help_menu['method_info'][0]):
+                    method_name = cmd.lower().strip(help_menu["method_info"][0]).strip("()").strip()
+                    cprint(data_base.get_method_info(method_name))
                 else:  # is not recognized as menu command
                     exec("data_base." + cmd)
 
