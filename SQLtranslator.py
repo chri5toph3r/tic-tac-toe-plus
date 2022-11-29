@@ -11,7 +11,8 @@ class DBMSTranslator:
             "open",
             "close",
             "conn",
-            "get_methods"
+            "get_methods",
+            "get_method_info"
         ]
         self.conn = None
         self.cur = None
